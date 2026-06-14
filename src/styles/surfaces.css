@@ -1,0 +1,83 @@
+/* Gulv-, vegg- og vindusstiler. Deles mellom Rommet og forhåndsvisning
+   i Butikken via data-attributter (CSS Modules hasher ikke attributtvelgere). */
+
+/* ---- Gulv ---- */
+[data-floor] {
+  background: #44415e;
+}
+
+[data-floor='gulv-treplanker'] {
+  background: repeating-linear-gradient(
+    90deg,
+    #9c6b43 0 36px,
+    #8a5b38 36px 40px
+  );
+}
+
+[data-floor='gulv-gress'] {
+  background-color: #3fae60;
+  background-image: radial-gradient(circle at 22% 28%, #5fd982 7px, transparent 8px),
+    radial-gradient(circle at 70% 60%, #5fd982 6px, transparent 7px),
+    radial-gradient(circle at 45% 85%, #4ecb71 8px, transparent 9px),
+    radial-gradient(circle at 85% 18%, #4ecb71 5px, transparent 6px);
+  background-size: 130px 130px;
+}
+
+[data-floor='gulv-fliser'] {
+  background: repeating-conic-gradient(#e8e4da 0% 25%, #cfc8ba 0% 50%) 0 0 / 64px 64px;
+}
+
+[data-floor='gulv-teppe'] {
+  background: radial-gradient(circle at 50% 50%, #b07ef7 0%, #8f5fd6 75%, #7a4fc0 100%);
+}
+
+/* ---- Vegger ---- */
+[data-wall] {
+  background: #34324e;
+}
+
+[data-wall='vegg-bla'] {
+  background: linear-gradient(#4a6da8, #3a5a8c);
+}
+
+[data-wall='vegg-rosa'] {
+  background: linear-gradient(#d98bb8, #c2729f);
+}
+
+[data-wall='vegg-striper'] {
+  background: repeating-linear-gradient(90deg, #f2e2c4 0 26px, #e8cfa3 26px 52px);
+}
+
+[data-wall='vegg-stjernehimmel'] {
+  background-color: #232145;
+  background-image: radial-gradient(circle at 18% 25%, #f0ede8 1.6px, transparent 2.6px),
+    radial-gradient(circle at 60% 70%, #f9c846 1.4px, transparent 2.4px),
+    radial-gradient(circle at 82% 30%, #f0ede8 1.8px, transparent 2.8px),
+    radial-gradient(circle at 40% 50%, #7ed4f7 1.3px, transparent 2.3px),
+    radial-gradient(circle at 75% 85%, #f0ede8 1.5px, transparent 2.5px);
+  background-size: 110px 90px;
+}
+
+/* ---- Vindusruter ---- */
+[data-window] {
+  background: #2a2940;
+}
+
+[data-window='vindu-dag'] {
+  background: linear-gradient(#9adcf7 55%, #bfeec1);
+  background-image: radial-gradient(circle at 70% 25%, #f9c846 13px, rgba(249, 200, 70, 0.35) 17px, transparent 22px),
+    linear-gradient(#9adcf7 55%, #bfeec1);
+}
+
+[data-window='vindu-natt'] {
+  background-color: #15133a;
+  background-image: radial-gradient(circle at 68% 28%, #f0ede8 11px, transparent 12px),
+    radial-gradient(circle at 25% 20%, #f0ede8 1.5px, transparent 2.5px),
+    radial-gradient(circle at 40% 60%, #f0ede8 1.3px, transparent 2.3px),
+    radial-gradient(circle at 80% 70%, #f9c846 1.4px, transparent 2.4px),
+    radial-gradient(circle at 15% 75%, #7ed4f7 1.4px, transparent 2.4px);
+}
+
+[data-window='vindu-solnedgang'] {
+  background: linear-gradient(#2b2a6e 10%, #b45a8a 45%, #e0763e 70%, #f9c846 100%);
+}

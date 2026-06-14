@@ -1,0 +1,15 @@
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  min-height: var(--touch-target);
+}
+
+.amount {
+  font-weight: 800;
+  font-size: var(--font-size-lg);
+  color: var(--color-diamond);
+}

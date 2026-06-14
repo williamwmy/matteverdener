@@ -1,0 +1,61 @@
+.scene {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.caption {
+  font-weight: 800;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.coins {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 6px;
+  justify-items: center;
+}
+
+.coin {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 800;
+  color: #3a2a06;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.35), inset 0 2px 3px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 10-mynt: gull, litt større. */
+.ten {
+  width: 46px;
+  height: 46px;
+  font-size: 1.05rem;
+  background: radial-gradient(circle at 35% 30%, #ffe28a, #e0a92e 75%);
+  border: 2px solid #c98e22;
+}
+
+/* 1-mynt: sølv, litt mindre. */
+.one {
+  width: 36px;
+  height: 36px;
+  font-size: 0.95rem;
+  color: #2a3045;
+  background: radial-gradient(circle at 35% 30%, #f1f3fa, #aab0c4 75%);
+  border: 2px solid #8a90a6;
+}

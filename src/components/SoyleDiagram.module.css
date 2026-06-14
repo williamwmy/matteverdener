@@ -1,0 +1,37 @@
+.chart {
+  max-width: 100%;
+  height: auto;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+.axis {
+  stroke: var(--color-text-muted);
+  stroke-width: 2;
+}
+
+.bar {
+  fill: var(--color-diamond);
+}
+
+.value {
+  fill: var(--color-text);
+  font-size: 13px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
+
+.label {
+  font-size: 16px;
+  text-anchor: middle;
+}
+
+.sublabel {
+  fill: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}

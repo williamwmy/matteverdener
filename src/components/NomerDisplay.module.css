@@ -1,0 +1,29 @@
+.group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.card {
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.dot {
+  fill: var(--color-accent);
+}
+
+.frame {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 2;
+  opacity: 0.55;
+}
+
+.plus {
+  font-size: var(--font-size-hero);
+  font-weight: 800;
+  color: var(--color-text-muted);
+}

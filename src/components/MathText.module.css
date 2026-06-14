@@ -1,0 +1,20 @@
+/* Stablet brøk med vannrett strek. Tar farge fra teksten rundt (currentColor)
+   slik at den også ser riktig ut på grønne/røde svarknapper. */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  font-size: 0.82em;
+  line-height: 1;
+  margin: 0 0.18em;
+}
+
+.num {
+  padding: 0 0.35em 0.08em;
+}
+
+.den {
+  padding: 0.08em 0.35em 0;
+  border-top: 0.12em solid currentColor;
+}

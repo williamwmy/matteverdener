@@ -1,0 +1,36 @@
+:root {
+  /* Palett */
+  --color-bg: #0f0e17;
+  --color-surface: #1e1d2e;
+  --color-surface-alt: #2a2940;
+  --color-accent: #f9c846;
+  --color-accent-green: #4ecb71;
+  --color-accent-red: #e05252;
+  --color-text: #f0ede8;
+  --color-text-muted: #8b8aa0;
+  --color-diamond: #7ed4f7;
+
+  /* Typografi */
+  --font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  --font-size-sm: 0.875rem; /* 14px — minste tillatte tekst */
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --font-size-hero: 2.5rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Form */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --touch-target: 44px;
+}

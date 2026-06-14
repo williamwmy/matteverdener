@@ -1,0 +1,116 @@
+/* ---- Konfetti ---- */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.piece {
+  position: absolute;
+  top: -16px;
+  width: 11px;
+  height: 16px;
+  opacity: 0;
+  transform: rotate(var(--rot));
+  animation-name: fall;
+  animation-timing-function: ease-in;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.round {
+  border-radius: 50%;
+  height: 11px;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, -10px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift), 360px) rotate(var(--rot));
+  }
+}
+
+/* ---- Diamantsprut ved riktig svar ---- */
+.burst {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.burstItem {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 1.5rem;
+  opacity: 0;
+  transform: translate(-50%, 0);
+  animation: pop-up 0.9s ease-out forwards;
+}
+
+@keyframes pop-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--x) * 0.6), calc(var(--rise) * -0.6)) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--x)), calc(var(--rise) * -1)) scale(0.9);
+  }
+}
+
+/* ---- Stjernerad ---- */
+.stars {
+  display: flex;
+  gap: var(--space-2);
+  font-size: 2.4rem;
+}
+
+.star {
+  filter: grayscale(0.6);
+  opacity: 0.5;
+  transform: scale(0.9);
+}
+
+.starOn {
+  filter: none;
+  opacity: 1;
+  animation: star-pop 0.45s ease-out backwards;
+}
+
+@keyframes star-pop {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti,
+  .burst {
+    display: none;
+  }
+  .starOn {
+    animation: none;
+  }
+}

@@ -1,0 +1,38 @@
+.fig {
+  max-width: 100%;
+  height: auto;
+}
+
+.shape {
+  fill: rgba(126, 212, 247, 0.18);
+  stroke: var(--color-diamond);
+  stroke-width: 3;
+}
+
+.helper {
+  stroke: var(--color-text-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.rightAngle {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.5;
+}
+
+.label {
+  fill: var(--color-text);
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
+
+.angle {
+  fill: var(--color-accent);
+  font-size: 14px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}

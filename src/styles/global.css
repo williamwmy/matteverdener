@@ -1,0 +1,150 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Levende, fargerik bakgrunn (aurora) bak alle skjermer uten eget verdenstema.
+   Ligger på z-index -2; verdenstemaene i spilløkten legger seg over på -1. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(249, 200, 70, 0.14), transparent 38%),
+    radial-gradient(circle at 82% 18%, rgba(126, 212, 247, 0.16), transparent 40%),
+    radial-gradient(circle at 72% 82%, rgba(176, 126, 247, 0.16), transparent 40%),
+    radial-gradient(circle at 25% 78%, rgba(78, 203, 113, 0.13), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(249, 126, 195, 0.08), transparent 55%);
+  animation: aurora 26s ease-in-out infinite alternate;
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  100% {
+    transform: translate3d(0, -3%, 0) rotate(7deg) scale(1.12);
+  }
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+button {
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: var(--color-surface-alt);
+  border: none;
+  border-radius: var(--radius);
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+button:hover {
+  background: #353354;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* Gjenbrukbare knappevarianter */
+.btn-primary {
+  background: var(--color-accent);
+  color: #1c1603;
+  font-weight: 800;
+  font-size: var(--font-size-lg);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 0 #b8902a;
+}
+
+.btn-primary:hover {
+  background: #ffd55e;
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b8902a;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+/* Felles skjermramme */
+.screen {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
