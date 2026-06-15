@@ -170,16 +170,22 @@ function figurtall() {
   const seq = seqs[kind];
   const shown = randInt(3, 4);
   const correct = seq[shown];
+  const terms = seq.slice(0, shown);
+  // Hoppene mellom de viste leddene (vokser: +3, +5, +7 … for kvadrattall).
+  const diffs = terms.slice(1).map((v, i) => v - terms[i]);
+  const labels = diffs.map((d) => `+${d}`);
+  const lastDiff = correct - terms[terms.length - 1];
   return question({
     prompt: 'Hvilket tall kommer neste i mønsteret?',
-    expression: seq.slice(0, shown).join(', ') + ', ?',
+    expression: terms.join(', ') + ', ?',
     choices: makeChoices(correct, { min: 0, spread: Math.max(2, Math.round(correct / 6)) }),
     correct,
+    visual: { type: 'sekvens', terms, answer: correct, labels },
     explanation: {
       text: kind === 'trekant'
-        ? `Dette er trekanttall — vi legger til ett mer hver gang. Neste er ${correct}.`
+        ? `Dette er trekanttall — hoppet øker med 1 hver gang. Neste er ${correct}.`
         : `Dette er kvadrattall (1·1, 2·2, 3·3 …). Neste er ${correct}.`,
-      visual: null,
+      visual: { type: 'sekvens', terms, answer: correct, labels: [...labels, `+${lastDiff}`], reveal: true },
     },
   });
 }
@@ -202,12 +208,17 @@ function sequenceRule() {
   }
   const seq = [start, start + d, start + 2 * d, start + 3 * d];
   const next = start + 4 * d;
+  const labels = Array(seq.length - 1).fill(`+${d}`);
   return question({
     prompt: 'Hva er det neste tallet i tallfølgen?',
     expression: seq.join(', ') + ', ?',
     choices: makeChoices(next, { min: 0, spread: Math.max(2, d) }),
     correct: next,
-    explanation: { text: `Tallfølgen øker med ${d}. Neste er ${next}.`, visual: null },
+    visual: { type: 'sekvens', terms: seq, answer: next, labels },
+    explanation: {
+      text: `Tallfølgen øker med ${d}. Neste er ${next}.`,
+      visual: { type: 'sekvens', terms: seq, answer: next, labels: [...labels, `+${d}`], reveal: true },
+    },
   });
 }
 
@@ -225,15 +236,105 @@ function findRule() {
   });
 }
 
+// Hvor mange hele i en uekte brøk?
+function heleIBrok() {
+  const denom = pick([2, 3, 4, 5]);
+  const whole = randInt(1, 3);
+  const rem = randInt(1, denom - 1);
+  const num = whole * denom + rem;
+  return question({
+    prompt: `Hvor mange HELE er det i brøken ${num}/${denom}?`,
+    choices: choicesFrom(whole, [whole + 1, whole - 1, denom, num, rem, whole + 2]),
+    correct: whole,
+    explanation: { text: `${num}/${denom} = ${whole} hele og ${rem}/${denom} igjen.`, visual: null },
+  });
+}
+
+// Forenkle en brøk.
+function forenkleBrok() {
+  const base = pick([[1, 2], [1, 3], [1, 4], [2, 3], [1, 5], [3, 4], [2, 5]]);
+  const k = randInt(2, 3);
+  const [bn, bd] = base;
+  const num = bn * k;
+  const denom = bd * k;
+  return question({
+    prompt: 'Skriv brøken så enkelt som mulig:',
+    expression: `${num}/${denom}`,
+    choiceType: 'text',
+    choices: choicesFrom(`${bn}/${bd}`, [`${num}/${denom}`, `${bn + 1}/${bd}`, `${bn}/${bd + 1}`, `${bn}/${bd * 2}`, `${bn * 2}/${bd}`]),
+    correct: `${bn}/${bd}`,
+    explanation: { text: `${num}/${denom} = ${bn}/${bd} når vi deler teller og nevner på ${k}.`, visual: null },
+  });
+}
+
+// Hvor stor del er IKKE fylt? (komplementbrøk)
+function brokResten() {
+  const denom = pick([3, 4, 5, 6]);
+  const num = randInt(1, denom - 1);
+  const rest = denom - num;
+  const shape = pick(['bar', 'sirkel']);
+  return question({
+    prompt: 'Hvor stor del er IKKE fylt med farge?',
+    visual: { type: 'brok', numerator: num, denominator: denom, shape },
+    choiceType: 'text',
+    choices: choicesFrom(`${rest}/${denom}`, brokDistraktorer(rest, denom)),
+    correct: `${rest}/${denom}`,
+    explanation: { text: `${num}/${denom} er fylt, så ${rest}/${denom} er ikke fylt.`, visual: { type: 'brok', numerator: num, denominator: denom, shape } },
+  });
+}
+
+// ---- Mer desimaltall ----
+
+function desimalGanger() {
+  const t = randInt(1, 5);
+  const k = randInt(2, 4);
+  const correct = (t * k) / 10;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${nf(t / 10)} · ${k}`,
+    choiceType: 'text',
+    choices: choicesFrom(nf(correct), [nf(correct + 0.1), nf(correct - 0.1), nf(t * k), nf(correct + 1)]),
+    correct: nf(correct),
+    explanation: { text: `${t} tideler · ${k} = ${t * k} tideler = ${nf(correct)}.`, visual: null },
+  });
+}
+
+function subDecimals() {
+  const a = randInt(4, 9);
+  const b = randInt(1, a - 1);
+  const correct = (a - b) / 10;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${nf(a / 10)} − ${nf(b / 10)}`,
+    choiceType: 'text',
+    choices: choicesFrom(nf(correct), [nf(correct + 0.1), nf(correct - 0.1), nf((a - b) / 100), nf(a - b)]),
+    correct: nf(correct),
+    explanation: { text: `${a} tideler − ${b} tideler = ${a - b} tideler = ${nf(correct)}.`, visual: null },
+  });
+}
+
+function rundeDesimal() {
+  const whole = randInt(1, 9);
+  const t = randInt(1, 9);
+  const val = whole + t / 10;
+  const correct = Math.round(val);
+  return question({
+    prompt: `Rund av ${nf(val)} til nærmeste hele tall.`,
+    choices: choicesFrom(correct, [whole, whole + 1, correct + 1, correct - 1, correct + 2]),
+    correct,
+    explanation: { text: `${nf(val)} er nærmest ${correct}.`, visual: null },
+  });
+}
+
 export const pools = {
-  1: [() => fractionShaded(), () => fractionShaded(), () => sequenceRule(), () => fractionOfQuantity()],
-  2: [() => fractionShaded(), () => fractionOfQuantity(), () => sequenceRule(), () => compareFractions()],
-  3: [() => fractionOfQuantity(), () => compareFractions(), () => findRule(), () => figurtall()],
-  4: [() => compareFractions(), () => equivalentFraction(), () => figurtall(), () => fractionOfQuantity()],
-  5: [() => equivalentFraction(), () => decimalFraction(), () => tenths(), () => findRule()],
-  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions()],
-  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => equivalentFraction()],
-  8: [() => addDecimals(), () => decimalFraction(), () => figurtall(), () => addFractions()],
-  9: [() => addFractions(), () => addDecimals(), () => sequenceRule(), () => compareFractions()],
-  10: [() => addDecimals(), () => addFractions(), () => figurtall(), () => orderDecimals()],
+  1: [() => fractionShaded(), () => fractionShaded(), () => sequenceRule(), () => fractionOfQuantity(), () => brokResten()],
+  2: [() => fractionShaded(), () => fractionOfQuantity(), () => sequenceRule(), () => compareFractions(), () => brokResten()],
+  3: [() => fractionOfQuantity(), () => compareFractions(), () => findRule(), () => figurtall(), () => heleIBrok()],
+  4: [() => compareFractions(), () => equivalentFraction(), () => figurtall(), () => fractionOfQuantity(), () => heleIBrok(), () => forenkleBrok()],
+  5: [() => equivalentFraction(), () => decimalFraction(), () => tenths(), () => findRule(), () => forenkleBrok(), () => rundeDesimal()],
+  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions(), () => rundeDesimal(), () => desimalGanger()],
+  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => equivalentFraction(), () => subDecimals(), () => desimalGanger()],
+  8: [() => addDecimals(), () => decimalFraction(), () => figurtall(), () => addFractions(), () => subDecimals(), () => forenkleBrok()],
+  9: [() => addFractions(), () => addDecimals(), () => sequenceRule(), () => compareFractions(), () => desimalGanger(), () => heleIBrok()],
+  10: [() => addDecimals(), () => addFractions(), () => figurtall(), () => orderDecimals(), () => subDecimals(), () => rundeDesimal()],
 };

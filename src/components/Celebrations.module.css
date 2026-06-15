@@ -105,12 +105,130 @@
   }
 }
 
+/* ---- Six Seven easter egg ---- */
+.sixSeven {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(15, 14, 23, 0.55), rgba(15, 14, 23, 0.78));
+  animation: ssFade 0.22s ease-out;
+}
+
+.ssInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  animation: ssPop 0.45s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+.ssHands {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.ssHand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ssHandL {
+  animation: ssBobA 0.7s ease-in-out infinite;
+}
+
+.ssHandR {
+  animation: ssBobB 0.7s ease-in-out infinite;
+}
+
+.ssNum {
+  font-size: clamp(2.5rem, 14vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-accent);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.ssHandR .ssNum {
+  color: var(--color-diamond);
+}
+
+.ssPalm {
+  font-size: clamp(3rem, 18vw, 6.5rem);
+  line-height: 1;
+}
+
+.ssText {
+  font-size: clamp(1.75rem, 10vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-diamond), var(--color-accent-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ssWobble 0.7s ease-in-out infinite;
+}
+
+@keyframes ssFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ssPop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes ssBobA {
+  0%,
+  100% {
+    transform: translateY(-16px) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(16px) rotate(4deg);
+  }
+}
+
+@keyframes ssBobB {
+  0%,
+  100% {
+    transform: translateY(16px) rotate(6deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(-4deg);
+  }
+}
+
+@keyframes ssWobble {
+  0%,
+  100% {
+    transform: rotate(-2deg) scale(1);
+  }
+  50% {
+    transform: rotate(2deg) scale(1.06);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .confetti,
   .burst {
     display: none;
   }
   .starOn {
+    animation: none;
+  }
+  .ssInner,
+  .ssHandL,
+  .ssHandR,
+  .ssText {
     animation: none;
   }
 }

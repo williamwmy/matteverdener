@@ -145,15 +145,135 @@ function percentChange() {
   });
 }
 
+// ---- Lineære sammenhenger ----
+
+function stigningstall() {
+  const a = pick([2, 3, 4, 5]);
+  const b = randInt(0, 5);
+  const ys = [1, 2, 3].map((x) => a * x + b);
+  return question({
+    prompt: `Når x = 1, 2, 3 blir y = ${ys.join(', ')}. Hvor mye øker y hver gang x øker med 1 (stigningstallet)?`,
+    choices: makeChoices(a, { min: 1, spread: 2 }),
+    correct: a,
+    explanation: { text: `y øker med ${a} hver gang — stigningstallet er ${a}.`, visual: null },
+  });
+}
+
+function finnXavY() {
+  const a = pick([2, 3, 4, 5]);
+  const b = randInt(1, 8);
+  const x = randInt(2, 9);
+  const y = a * x + b;
+  return question({
+    prompt: `Roboten 🤖 følger y = ${a}x + ${b}. Hva er x når y = ${y}?`,
+    choices: makeChoices(x, { min: 0, spread: 3 }),
+    correct: x,
+    explanation: { text: `${y} − ${b} = ${a * x}, og ${a * x} : ${a} = ${x}.`, visual: null },
+  });
+}
+
+function nteLedd() {
+  const a = pick([2, 3, 4]);
+  const b = pick([1, 2, 3]);
+  const n = randInt(4, 8);
+  const correct = a * n + b;
+  return question({
+    prompt: `I et mønster har figur nr. n ${a}·n + ${b} ruter. Hvor mange ruter har figur nr. ${n}?`,
+    choices: makeChoices(correct, { min: 0, spread: 3 }),
+    correct,
+    explanation: { text: `${a} · ${n} + ${b} = ${correct}.`, visual: null },
+  });
+}
+
+function punktPaaLinje() {
+  const a = pick([2, 3, 4]);
+  const x = randInt(2, 5);
+  const correct = `(${x}, ${a * x})`;
+  const wrong = [`(${x}, ${a * x + 1})`, `(${a * x}, ${x})`, `(${x + 1}, ${a * x})`, `(${x}, ${a * x - 1})`].filter((w) => w !== correct);
+  return question({
+    prompt: `Hvilket punkt ligger på linja y = ${a}x?`,
+    choiceType: 'text',
+    choices: choicesFrom(correct, wrong),
+    correct,
+    explanation: { text: `Når x = ${x} er y = ${a}·${x} = ${a * x}, altså ${correct}.`, visual: null },
+  });
+}
+
+// ---- Likning med parentes ----
+
+function likningParentes() {
+  const a = randInt(2, 4);
+  const x = randInt(2, 8);
+  const b = randInt(1, 5);
+  const c = a * (x + b);
+  return question({
+    prompt: 'Hva er x?',
+    expression: `${a}(x + ${b}) = ${c}`,
+    choices: makeChoices(x, { min: 0, spread: 3 }),
+    correct: x,
+    explanation: { text: `x + ${b} = ${c} : ${a} = ${x + b}, så x = ${x}.`, visual: null },
+  });
+}
+
+// ---- Koordinatsystem: kvadranter ----
+
+function kvadrant() {
+  const px = pick([-1, 1]) * randInt(1, 5);
+  const py = pick([-1, 1]) * randInt(1, 5);
+  const q = px > 0 && py > 0 ? 1 : px < 0 && py > 0 ? 2 : px < 0 && py < 0 ? 3 : 4;
+  return question({
+    prompt: `I hvilken kvadrant ligger punktet (${px}, ${py})?`,
+    visual: { type: 'koordinat', min: -5, max: 5, point: [px, py] },
+    choiceType: 'text',
+    choices: choicesFrom(`${q}. kvadrant`, [1, 2, 3, 4].filter((k) => k !== q).map((k) => `${k}. kvadrant`)),
+    correct: `${q}. kvadrant`,
+    explanation: {
+      text: `x ${px > 0 ? '> 0' : '< 0'} og y ${py > 0 ? '> 0' : '< 0'} gir ${q}. kvadrant.`,
+      visual: { type: 'koordinat', min: -5, max: 5, point: [px, py] },
+    },
+  });
+}
+
+// ---- Forhold og proporsjonalitet ----
+
+function forholdDeling() {
+  const r1 = randInt(1, 3);
+  const r2 = randInt(r1 + 1, 5);
+  const unit = randInt(2, 6);
+  const total = (r1 + r2) * unit;
+  const bigger = r2 * unit;
+  return question({
+    prompt: `Del ${total} kr i forholdet ${r1}:${r2}. Hvor mye er den STØRSTE delen?`,
+    choices: makeChoices(bigger, { min: 0, spread: 3 }),
+    correct: bigger,
+    explanation: { text: `${r1} + ${r2} = ${r1 + r2} deler. ${total} : ${r1 + r2} = ${unit} per del, og ${r2} · ${unit} = ${bigger}.`, visual: null },
+  });
+}
+
+function omvendtProp() {
+  const workers1 = pick([2, 3, 4]);
+  const hours1 = pick([6, 8, 12, 24]);
+  const work = workers1 * hours1;
+  const opts = [2, 3, 4, 6, 8, 12].filter((w) => w !== workers1 && work % w === 0);
+  const workers2 = pick(opts.length ? opts : [workers1 * 2]);
+  const correct = work / workers2;
+  return question({
+    prompt: `${workers1} roboter 🤖 bygger en bro på ${hours1} timer. Hvor lang tid bruker ${workers2} roboter på samme jobb?`,
+    choices: makeChoices(correct, { min: 1, spread: 3 }),
+    correct,
+    explanation: { text: `Jobben er ${workers1} · ${hours1} = ${work} robottimer. ${work} : ${workers2} = ${correct} timer.`, visual: null },
+  });
+}
+
 export const pools = {
-  1: [() => functionValue(), () => functionValue(), () => nextInSequence(), () => proportion()],
-  2: [() => functionValue(), () => nextInSequence(), () => proportion(), () => functionRule()],
-  3: [() => functionRule(), () => functionValue(), () => proportion(), () => coordPlot()],
-  4: [() => functionRule(), () => proportion(), () => rate(), () => coordPlot()],
-  5: [() => rate(), () => functionValue(), () => coordPlot(), () => percentChange()],
-  6: [() => equationBothSides(), () => functionRule(), () => rate(), () => percentChange()],
-  7: [() => equationBothSides(), () => functionValue(), () => coordPlot(), () => percentChange()],
-  8: [() => equationBothSides(), () => functionRule(), () => rate(), () => proportion()],
-  9: [() => equationBothSides(), () => percentChange(), () => coordPlot(), () => functionValue()],
-  10: [() => equationBothSides(), () => functionRule(), () => percentChange(), () => rate()],
+  1: [() => functionValue(), () => functionValue(), () => nextInSequence(), () => proportion(), () => nteLedd()],
+  2: [() => functionValue(), () => nextInSequence(), () => proportion(), () => functionRule(), () => stigningstall(), () => nteLedd()],
+  3: [() => functionRule(), () => functionValue(), () => proportion(), () => coordPlot(), () => stigningstall(), () => kvadrant()],
+  4: [() => functionRule(), () => proportion(), () => rate(), () => coordPlot(), () => kvadrant(), () => finnXavY()],
+  5: [() => rate(), () => functionValue(), () => coordPlot(), () => percentChange(), () => finnXavY(), () => punktPaaLinje()],
+  6: [() => equationBothSides(), () => functionRule(), () => rate(), () => percentChange(), () => likningParentes(), () => punktPaaLinje()],
+  7: [() => equationBothSides(), () => functionValue(), () => coordPlot(), () => percentChange(), () => forholdDeling(), () => kvadrant()],
+  8: [() => equationBothSides(), () => functionRule(), () => rate(), () => proportion(), () => likningParentes(), () => omvendtProp()],
+  9: [() => equationBothSides(), () => percentChange(), () => coordPlot(), () => functionValue(), () => forholdDeling(), () => finnXavY()],
+  10: [() => equationBothSides(), () => functionRule(), () => percentChange(), () => rate(), () => omvendtProp(), () => likningParentes()],
 };

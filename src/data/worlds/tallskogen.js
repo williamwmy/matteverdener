@@ -145,12 +145,18 @@ function telleRekke({ diffs = [1], maxStart = 10, allowDown = false } = {}) {
   const start = down ? randInt(shown * d, maxStart + shown * d) : randInt(0, maxStart);
   const terms = Array.from({ length: shown }, (_, i) => (down ? start - i * d : start + i * d));
   const correct = down ? start - shown * d : start + shown * d;
+  const label = down ? `−${d}` : `+${d}`;
+  const labels = Array(shown - 1).fill(label);
   return question({
     prompt: 'Hva er det neste tallet i tellerekka?',
     expression: terms.join(', ') + ', ?',
     choices: makeChoices(correct, { min: 0, spread: Math.max(2, d) }),
     correct,
-    explanation: { text: `Tellerekka ${down ? 'minker' : 'øker'} med ${d} om gangen. Neste tall er ${correct}.`, visual: null },
+    visual: { type: 'sekvens', terms, answer: correct, labels },
+    explanation: {
+      text: `Tellerekka ${down ? 'minker' : 'øker'} med ${d} om gangen. Neste tall er ${correct}.`,
+      visual: { type: 'sekvens', terms, answer: correct, labels: [...labels, label], reveal: true },
+    },
   });
 }
 

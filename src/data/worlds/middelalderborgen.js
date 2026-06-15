@@ -185,15 +185,108 @@ function straightAngle() {
   });
 }
 
+// ---- Flere likninger og uttrykk ----
+
+function likningMinusX() {
+  const x = randInt(2, 15);
+  const a = x + randInt(2, 15);
+  const r = a - x;
+  return question({
+    prompt: 'Hva er x?',
+    expression: `${a} − x = ${r}`,
+    choices: makeChoices(x, { min: 0, spread: 3 }),
+    correct: x,
+    explanation: { text: `x = ${a} − ${r} = ${x}.`, visual: null },
+  });
+}
+
+function settInnFormel() {
+  const l = randInt(3, 12);
+  const b = randInt(2, 10);
+  const correct = 2 * (l + b);
+  return question({
+    prompt: `Omkretsen av et rektangel er O = 2 · (l + b). Hva er O når l = ${l} og b = ${b}?`,
+    choices: makeChoices(correct, { min: 0, spread: 4 }),
+    correct,
+    explanation: { text: `2 · (${l} + ${b}) = ${correct}.`, visual: null },
+  });
+}
+
+function potens() {
+  const base = randInt(2, 9);
+  const correct = base * base;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${base}²`,
+    choices: makeChoices(correct, { min: 0, spread: Math.max(3, base) }),
+    correct,
+    explanation: { text: `${base}² = ${base} · ${base} = ${correct}.`, visual: null },
+  });
+}
+
+// ---- Mer geometri ----
+
+function trekantOmkrets() {
+  const a = randInt(3, 15);
+  const b = randInt(3, 15);
+  const c = randInt(3, 15);
+  const correct = a + b + c;
+  return question({
+    prompt: `Et trekantet banner ⚑ har sider på ${a} cm, ${b} cm og ${c} cm. Hvor lang er omkretsen?`,
+    choices: makeChoices(correct, { min: 0, spread: 4 }),
+    correct,
+    explanation: { text: `${a} + ${b} + ${c} = ${correct} cm.`, visual: null },
+  });
+}
+
+function firkantVinkel() {
+  const a = randInt(60, 110);
+  const b = randInt(60, 110);
+  const c = randInt(60, 110);
+  const correct = 360 - a - b - c;
+  if (correct < 30 || correct > 150) return firkantVinkel();
+  return question({
+    prompt: `Tre vinkler i en firkant er ${a}°, ${b}° og ${c}°. Hvor stor er den fjerde?`,
+    choices: makeChoices(correct, { min: 0, max: 360, spread: 6 }),
+    correct,
+    explanation: { text: `Vinklene i en firkant er 360° til sammen: 360 − ${a} − ${b} − ${c} = ${correct}°.`, visual: null },
+  });
+}
+
+function volumBoks() {
+  const l = randInt(2, 6);
+  const b = randInt(2, 5);
+  const h = randInt(2, 4);
+  const correct = l * b * h;
+  return question({
+    prompt: `En skattekiste er ${l} · ${b} · ${h} ruter (lengde · bredde · høyde). Hva er volumet?`,
+    choices: makeChoices(correct, { min: 0, spread: Math.max(4, Math.round(correct / 6)) }),
+    correct,
+    explanation: { text: `Volum = ${l} · ${b} · ${h} = ${correct}.`, visual: null },
+  });
+}
+
+function skala() {
+  const s = pick([10, 100, 1000]);
+  const cm = randInt(2, 8);
+  const correct = cm * s;
+  return question({
+    prompt: `På et kart i målestokk 1:${s} er borgen ${cm} cm bred. Hvor mange cm er den i virkeligheten?`,
+    choices: choicesFrom(correct, [cm * s * 10, (cm + 1) * s, (cm - 1) * s, cm * s + s, cm * s - s]),
+    correct,
+    explanation: { text: `${cm} · ${s} = ${correct} cm.`, visual: null },
+  });
+}
+
 export const pools = {
-  1: [() => equationAddSub(), () => equationAddSub(), () => evaluateExpression(), () => simplifyTerms()],
-  2: [() => equationAddSub(), () => equationMultiply(), () => evaluateExpression(), () => rectanglePerimeter()],
-  3: [() => equationMultiply(), () => simplifyTerms(), () => rectanglePerimeter(), () => rectangleArea()],
-  4: [() => equationMultiply(), () => evaluateExpression(), () => rectangleArea(), () => squareAreaPerimeter()],
-  5: [() => equationTwoStep(), () => simplifyTerms(), () => squareAreaPerimeter(), () => triangleArea()],
-  6: [() => equationTwoStep(), () => evaluateExpression(), () => triangleArea(), () => straightAngle()],
-  7: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => straightAngle()],
-  8: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => triangleArea()],
-  9: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => rectangleArea()],
-  10: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => straightAngle()],
+  1: [() => equationAddSub(), () => equationAddSub(), () => evaluateExpression(), () => simplifyTerms(), () => likningMinusX()],
+  2: [() => equationAddSub(), () => equationMultiply(), () => evaluateExpression(), () => rectanglePerimeter(), () => likningMinusX(), () => potens()],
+  3: [() => equationMultiply(), () => simplifyTerms(), () => rectanglePerimeter(), () => rectangleArea(), () => trekantOmkrets(), () => potens()],
+  4: [() => equationMultiply(), () => evaluateExpression(), () => rectangleArea(), () => squareAreaPerimeter(), () => trekantOmkrets(), () => settInnFormel()],
+  5: [() => equationTwoStep(), () => simplifyTerms(), () => squareAreaPerimeter(), () => triangleArea(), () => settInnFormel(), () => firkantVinkel()],
+  6: [() => equationTwoStep(), () => evaluateExpression(), () => triangleArea(), () => straightAngle(), () => firkantVinkel(), () => volumBoks()],
+  7: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => straightAngle(), () => skala(), () => volumBoks()],
+  8: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => triangleArea(), () => firkantVinkel(), () => skala()],
+  9: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => rectangleArea(), () => potens(), () => settInnFormel()],
+  10: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => straightAngle(), () => skala(), () => volumBoks()],
 };

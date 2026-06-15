@@ -18,3 +18,26 @@
   padding: 0.08em 0.35em 0;
   border-top: 0.12em solid currentColor;
 }
+
+/* Plassholder for det ukjente tallet — gul «?» i en sirkel. */
+.ph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  color: var(--color-accent);
+  font-weight: 800;
+  border: 0.11em solid var(--color-accent);
+  border-radius: 50%;
+  line-height: 1;
+  vertical-align: middle;
+  margin: 0 0.08em;
+}
+
+.phSmall {
+  width: 1.05em;
+  height: 1.05em;
+  border-width: 0.1em;
+  margin: 0;
+}

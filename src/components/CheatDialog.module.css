@@ -1,0 +1,131 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(15, 14, 23, 0.72);
+  backdrop-filter: blur(3px);
+  animation: fade 0.18s ease-out;
+}
+
+.dialog {
+  width: min(360px, 100%);
+  background: var(--color-surface);
+  border: 2px solid var(--color-diamond);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow), 0 0 28px rgba(126, 212, 247, 0.3);
+  animation: pop 0.2s ease-out;
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  text-align: center;
+}
+
+.sub {
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+}
+
+.gem {
+  font-size: var(--font-size-xl);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  text-align: center;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.cancelBtn,
+.grantBtn {
+  flex: 1;
+  min-height: var(--touch-target);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+
+.cancelBtn {
+  background: var(--color-surface-alt);
+}
+
+.grantBtn {
+  background: var(--color-diamond);
+  color: var(--color-bg);
+}
+
+.grantBtn:disabled {
+  opacity: 0.5;
+}
+
+.divider {
+  height: 2px;
+  margin: var(--space-1) 0;
+  background: var(--color-surface-alt);
+  border-radius: 2px;
+}
+
+.unlockBtn {
+  min-height: var(--touch-target);
+  border-radius: var(--radius);
+  font-weight: 700;
+  background: var(--color-accent-green);
+  color: var(--color-bg);
+}
+
+.unlockBtn:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none;
+  }
+}

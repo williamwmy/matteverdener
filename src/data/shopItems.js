@@ -103,6 +103,31 @@ export const SHOP_ITEMS = [
     placement: { surface: 'floor', x: 290, y: 295, w: 50, h: 70 },
   },
 
+  // Flere møbler og interiør (stoler i flere farger, spisestue, bad, kjøkken)
+  { id: 'stol-tre', category: 'mobler', name: 'Trestol', price: 90, placement: { surface: 'floor', x: 95, y: 120, w: 34, h: 60 } },
+  { id: 'stol-rod', category: 'mobler', name: 'Rød stol', price: 90, placement: { surface: 'floor', x: 130, y: 120, w: 34, h: 60 } },
+  { id: 'stol-bla', category: 'mobler', name: 'Blå stol', price: 90, placement: { surface: 'floor', x: 95, y: 160, w: 34, h: 60 } },
+  { id: 'spisebord', category: 'mobler', name: 'Spisebord', price: 220, placement: { surface: 'floor', x: 160, y: 165, w: 112, h: 80 } },
+  { id: 'vask', category: 'mobler', name: 'Vask', price: 160, placement: { surface: 'floor', x: 60, y: 240, w: 52, h: 70 } },
+  { id: 'do', category: 'mobler', name: 'Do', price: 150, placement: { surface: 'floor', x: 285, y: 115, w: 36, h: 70 } },
+  { id: 'badekar', category: 'mobler', name: 'Badekar', price: 240, placement: { surface: 'floor', x: 235, y: 255, w: 102, h: 70 } },
+  { id: 'kjoleskap', category: 'mobler', name: 'Kjøleskap', price: 260, placement: { surface: 'floor', x: 285, y: 70, w: 46, h: 130 } },
+  { id: 'kjokkenbenk', category: 'mobler', name: 'Kjøkkenbenk', price: 240, placement: { surface: 'floor', x: 120, y: 58, w: 94, h: 70 } },
+
+  // Enda flere møbler — stue, soverom, kjøkken og litt gøy
+  { id: 'tv', category: 'mobler', name: 'TV-benk', price: 200, placement: { surface: 'floor', x: 250, y: 90, w: 90, h: 70 } },
+  { id: 'kommode', category: 'mobler', name: 'Kommode', price: 180, placement: { surface: 'floor', x: 70, y: 90, w: 70, h: 60 } },
+  { id: 'nattbord', category: 'mobler', name: 'Nattbord', price: 90, placement: { surface: 'floor', x: 60, y: 150, w: 32, h: 50 } },
+  { id: 'lenestol-gronn', category: 'mobler', name: 'Grønn lenestol', price: 180, placement: { surface: 'floor', x: 110, y: 240, w: 56, h: 60 } },
+  { id: 'lenestol-rod', category: 'mobler', name: 'Rød lenestol', price: 180, placement: { surface: 'floor', x: 200, y: 240, w: 56, h: 60 } },
+  { id: 'klesskap', category: 'mobler', name: 'Klesskap', price: 260, placement: { surface: 'floor', x: 285, y: 60, w: 56, h: 130 } },
+  { id: 'komfyr', category: 'mobler', name: 'Komfyr', price: 240, placement: { surface: 'floor', x: 120, y: 60, w: 50, h: 70 } },
+  { id: 'sofabord', category: 'mobler', name: 'Sofabord', price: 140, placement: { surface: 'floor', x: 175, y: 185, w: 84, h: 60 } },
+  { id: 'peis', category: 'mobler', name: 'Peis', price: 220, placement: { surface: 'floor', x: 160, y: 52, w: 78, h: 80 } },
+  { id: 'akvarium', category: 'mobler', name: 'Akvarium', price: 200, placement: { surface: 'floor', x: 250, y: 150, w: 60, h: 70 } },
+  { id: 'pall-gul', category: 'mobler', name: 'Gul krakk', price: 60, placement: { surface: 'floor', x: 90, y: 190, w: 28, h: 40 } },
+  { id: 'pall-gronn', category: 'mobler', name: 'Grønn krakk', price: 60, placement: { surface: 'floor', x: 130, y: 205, w: 28, h: 40 } },
+
   // Tepper — flate områdetepper som legges oppå gulvet (kan dras og snurres).
   // `kind: 'rug'` skiller dem fra de stående møblene i rom-tegningen.
   {

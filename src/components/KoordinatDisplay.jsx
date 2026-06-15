@@ -45,8 +45,15 @@ export default function KoordinatDisplay({ min, max, point }) {
           {v}
         </text>
       ))}
-      <circle cx={sx(point[0])} cy={sy(point[1])} r="7" className={s.point} />
-      <text x={sx(point[0]) + 11} y={sy(point[1]) - 9} className={s.star}>
+      {/* Stjernen markerer punktet nøyaktig — ingen egen «prikk» ved siden av. */}
+      <circle cx={sx(point[0])} cy={sy(point[1])} r="3" className={s.point} />
+      <text
+        x={sx(point[0])}
+        y={sy(point[1])}
+        textAnchor="middle"
+        dominantBaseline="central"
+        className={s.star}
+      >
         ⭐
       </text>
     </svg>

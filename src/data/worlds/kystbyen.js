@@ -6,6 +6,7 @@
 import {
   randInt,
   pick,
+  shuffle,
   makeChoices,
   choicesFrom,
   brokDistraktorer,
@@ -159,65 +160,221 @@ function marketTwoStep() {
   });
 }
 
+// ---- Multiplikasjon som hopp på tallinja ----
+
+function gangeHopp() {
+  const a = randInt(2, 5); // hoppstørrelse
+  const b = randInt(2, 5); // antall hopp
+  const p = a * b;
+  const visual = { type: 'tallinje', from: 0, to: p, step: a, hidden: [], jump: { start: 0, hops: b, dir: 'up' } };
+  return question({
+    prompt: `Måken 🐦 tar ${b} hopp på ${a}. Hvor lander den?`,
+    expression: `${a} · ${b}`,
+    visual,
+    choices: productChoices(a, b),
+    correct: p,
+    explanation: { text: `${b} hopp på ${a}: ${a} · ${b} = ${p}.`, visual },
+  });
+}
+
+// Tosifret · ensifret.
+function tosifretGanger() {
+  const a = randInt(11, 24);
+  const b = randInt(3, 6);
+  const p = a * b;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${a} · ${b}`,
+    choices: makeChoices(p, { min: 0, spread: Math.max(4, b) }),
+    correct: p,
+    explanation: { text: `${a} · ${b} = ${p}.`, visual: null },
+  });
+}
+
+// ---- Divisjon med rest ----
+
+function divisjonRest() {
+  const item = pick(SEA_ITEMS);
+  const divisor = randInt(3, 6);
+  const quotient = randInt(2, 6);
+  const rem = randInt(1, divisor - 1);
+  const total = divisor * quotient + rem;
+  return question({
+    prompt: `${total} ${item.name} ${item.emoji} skal deles likt på ${divisor} kasser. Hvor mange blir til overs?`,
+    choices: choicesFrom(rem, [rem + 1, rem - 1, divisor, divisor - rem, quotient, rem + 2]),
+    correct: rem,
+    explanation: { text: `${total} : ${divisor} = ${quotient} og ${rem} til overs.`, visual: null },
+  });
+}
+
+// Hvor mange fulle kasser? (heltallsdivisjon)
+function fulleKasser() {
+  const item = pick(SEA_ITEMS);
+  const per = randInt(3, 6);
+  const full = randInt(2, 6);
+  const rem = randInt(1, per - 1);
+  const total = per * full + rem;
+  return question({
+    prompt: `${total} ${item.name} ${item.emoji} pakkes ${per} i hver kasse. Hvor mange FULLE kasser blir det?`,
+    choices: choicesFrom(full, [full + 1, full - 1, per, total, full + 2]),
+    correct: full,
+    explanation: { text: `${total} : ${per} = ${full} fulle kasser (og ${rem} til overs).`, visual: null },
+  });
+}
+
+// ---- Sammenhengen gange/dele (fakta-familie) ----
+
+function faktafamilie() {
+  const a = randInt(2, 6);
+  const b = randInt(2, 6);
+  const p = a * b;
+  const correct = `${p} : ${a} = ${b}`;
+  const wrong = [
+    `${p} : ${a} = ${b + 1}`,
+    `${p} : ${b} = ${a + 1}`,
+    `${a} : ${b} = ${p}`,
+    `${p} · ${a} = ${b}`,
+    `${p} : ${a} = ${b + 2}`,
+  ].filter((w) => w !== correct);
+  return question({
+    prompt: `Hvilket regnestykke hører til samme «familie» som ${a} · ${b} = ${p}?`,
+    choiceType: 'text',
+    choices: choicesFrom(correct, wrong),
+    correct,
+    explanation: { text: `Ganging og deling henger sammen: ${a} · ${b} = ${p}, så ${p} : ${a} = ${b}.`, visual: null },
+  });
+}
+
+// ---- Pris (gjentatt addisjon i kroner) ----
+
+function prisGanger() {
+  const item = pick(SEA_ITEMS);
+  const k = randInt(2, 9);
+  const n = randInt(2, 6);
+  const p = k * n;
+  return question({
+    prompt: `Én ${item.single} koster ${k} kr. Hva koster ${n} ${item.name} ${item.emoji}?`,
+    choices: makeChoices(p, { min: 0, spread: Math.max(3, k) }),
+    correct: p,
+    explanation: { text: `${k} · ${n} = ${p} kr.`, visual: null },
+  });
+}
+
+// ---- Dobling og halvering ----
+
+function dobleHalvere() {
+  if (Math.random() < 0.5) {
+    const n = randInt(3, 20);
+    return question({
+      prompt: `Hva er det dobbelte av ${n}?`,
+      choices: makeChoices(n * 2, { min: 0, spread: 3 }),
+      correct: n * 2,
+      explanation: { text: `${n} + ${n} = ${n * 2}.`, visual: null },
+    });
+  }
+  const half = randInt(3, 12);
+  const n = half * 2;
+  return question({
+    prompt: `Hva er halvparten av ${n}?`,
+    choices: makeChoices(half, { min: 0, spread: 3 }),
+    correct: half,
+    explanation: { text: `${n} : 2 = ${half}.`, visual: null },
+  });
+}
+
+// ---- Sammenligne enkle brøker (samme teller) ----
+
+function sammenlignBrok() {
+  const denoms = shuffle([2, 3, 4, 5, 6, 8]).slice(0, 4);
+  const smallest = Math.min(...denoms); // minst nevner = størst brøk når telleren er 1
+  return question({
+    prompt: 'Hvilken brøk er størst?',
+    choiceType: 'text',
+    choices: shuffle(denoms.map((d) => `1/${d}`)),
+    correct: `1/${smallest}`,
+    explanation: { text: `Når telleren er 1, er brøken med minst nevner størst: 1/${smallest}.`, visual: null },
+  });
+}
+
 export const pools = {
   1: [
     () => arrayProduct({ maxRow: 3, maxCol: 4 }),
     () => arrayProduct({ maxRow: 3, maxCol: 4 }),
     () => repeatedAddition(),
     () => timesTable([2], 6),
+    () => gangeHopp(),
+    () => dobleHalvere(),
   ],
   2: [
     () => arrayProduct({ maxRow: 4, maxCol: 5 }),
     () => repeatedAddition(),
     () => timesTable([2, 5], 8),
     () => timesTable([10], 10),
+    () => gangeHopp(),
+    () => prisGanger(),
   ],
   3: [
     () => timesTable([2, 5, 10], 10),
     () => timesTable([3], 8),
     () => divisionShare(5),
     () => arrayProduct({ maxRow: 4, maxCol: 5 }),
+    () => gangeHopp(),
+    () => dobleHalvere(),
   ],
   4: [
     () => timesTable([3, 4], 10),
     () => divisionShare(6),
     () => missingFactor(5),
     () => divisionPlain(5),
+    () => prisGanger(),
+    () => faktafamilie(),
   ],
   5: [
     () => timesTable([2, 3, 4, 5], 10),
     () => divisionPlain(6),
     () => missingFactor(8),
     () => fractionOfQuantity(),
+    () => faktafamilie(),
+    () => divisjonRest(),
   ],
   6: [
     () => timesTable([6, 7, 8], 10),
     () => divisionPlain(8),
     () => fractionOfQuantity(),
     () => fractionShaded(),
+    () => tosifretGanger(),
+    () => sammenlignBrok(),
   ],
   7: [
     () => timesTable([6, 7, 8, 9], 10),
     () => divisionPlain(10),
     () => fractionShaded(),
     () => marketTwoStep(),
+    () => divisjonRest(),
+    () => fulleKasser(),
   ],
   8: [
     () => timesTable([7, 8, 9], 12),
     () => divisionPlain(12),
     () => missingFactor(12),
     () => marketTwoStep(),
+    () => tosifretGanger(),
+    () => sammenlignBrok(),
   ],
   9: [
     () => timesTable([8, 9, 12], 12),
     () => divisionPlain(12),
     () => fractionOfQuantity(),
     () => marketTwoStep(),
+    () => fulleKasser(),
+    () => tosifretGanger(),
   ],
   10: [
     () => timesTable([11, 12], 12),
     () => divisionPlain(12),
     () => missingFactor(12),
     () => marketTwoStep(),
+    () => divisjonRest(),
+    () => faktafamilie(),
   ],
 };

@@ -198,15 +198,110 @@ function probabilityFraction() {
   });
 }
 
+// ---- Mer prosent ----
+
+function desimalProsent() {
+  const t = randInt(1, 9);
+  const p = t * 10;
+  const dec = String(t / 10).replace('.', ',');
+  return question({
+    prompt: `Hvor mange prosent er ${dec}?`,
+    choiceType: 'text',
+    choices: choicesFrom(`${p} %`, [`${p + 10} %`, `${p - 10} %`, `${t} %`, `${p + 5} %`]),
+    correct: `${p} %`,
+    explanation: { text: `${dec} = ${p} %.`, visual: null },
+  });
+}
+
+function prosentOkning() {
+  const base = pick([20, 40, 60, 80, 100, 200]);
+  const p = pick([10, 20, 25, 50]);
+  const change = (base * p) / 100;
+  const correct = base + change;
+  return question({
+    prompt: `En fiskefangst på ${base} kg øker med ${p} %. Hvor mange kg blir det?`,
+    choices: makeChoices(correct, { min: 0, spread: Math.max(4, Math.round(change / 2)) }),
+    correct,
+    explanation: { text: `${p} % av ${base} er ${change}. ${base} + ${change} = ${correct} kg.`, visual: null },
+  });
+}
+
+function prosentRabatt() {
+  const base = pick([40, 60, 80, 100, 200]);
+  const p = pick([10, 20, 25, 50]);
+  const change = (base * p) / 100;
+  const correct = base - change;
+  return question({
+    prompt: `Dykkerutstyr koster ${base} kr. Det er ${p} % rabatt. Hva er den nye prisen?`,
+    choices: makeChoices(correct, { min: 0, spread: Math.max(4, Math.round(change / 2)) }),
+    correct,
+    explanation: { text: `${p} % av ${base} er ${change}. ${base} − ${change} = ${correct} kr.`, visual: null },
+  });
+}
+
+function sannsynlighetProsent() {
+  const item = pick([[1, 2, 50], [1, 4, 25], [3, 4, 75], [1, 5, 20], [2, 5, 40], [1, 10, 10]]);
+  const [k, n, p] = item;
+  return question({
+    prompt: `Sjansen for å fange en blekksprut 🦑 er ${k}/${n}. Hvor mange prosent er det?`,
+    choiceType: 'text',
+    choices: choicesFrom(`${p} %`, [`${p + 10} %`, `${p - 10} %`, `${k * 10} %`, `${p + 25} %`, `${100 - p} %`]),
+    correct: `${p} %`,
+    explanation: { text: `${k}/${n} = ${p} %.`, visual: null },
+  });
+}
+
+// ---- Mer statistikk ----
+
+function variasjonsbredde() {
+  const set = new Set();
+  while (set.size < 5) set.add(randInt(2, 40));
+  const arr = [...set];
+  const correct = Math.max(...arr) - Math.min(...arr);
+  return question({
+    prompt: `Ubåten 🤿 målte dybdene ${arr.join(', ')} m. Hva er variasjonsbredden (størst − minst)?`,
+    choices: makeChoices(correct, { min: 1, spread: 3 }),
+    correct,
+    explanation: { text: `${Math.max(...arr)} − ${Math.min(...arr)} = ${correct}.`, visual: null },
+  });
+}
+
+function chartLeast() {
+  const data = buildChart(4);
+  const bot = data.reduce((a, b) => (b.value < a.value ? b : a));
+  if (data.filter((d) => d.value === bot.value).length > 1) return chartLeast();
+  return question({
+    prompt: 'Søylediagrammet viser fangsten. Hvilket dyr ble det FÆRREST av?',
+    visual: { type: 'soyle', data, unit: '' },
+    choiceType: 'emoji',
+    choices: shuffle(data.map((d) => d.emoji)),
+    correct: bot.emoji,
+    explanation: { text: `${bot.label} ${bot.emoji} har den laveste søylen (${bot.value}).`, visual: { type: 'soyle', data } },
+  });
+}
+
+// ---- Kombinatorikk ----
+
+function kombinasjoner() {
+  const a = randInt(2, 4);
+  const b = randInt(2, 4);
+  return question({
+    prompt: `En dykker 🤿 kan velge mellom ${a} drakter og ${b} masker. Hvor mange ulike kombinasjoner finnes det?`,
+    choices: makeChoices(a * b, { min: 1, spread: 2 }),
+    correct: a * b,
+    explanation: { text: `${a} · ${b} = ${a * b} kombinasjoner.`, visual: null },
+  });
+}
+
 export const pools = {
-  1: [() => chartMost(), () => chartTotal(), () => percentOfQuantity(), () => probabilityCount()],
-  2: [() => chartMost(), () => chartDiff(), () => percentOfQuantity(), () => probabilityCount()],
-  3: [() => chartDiff(), () => chartTotal(), () => percentConvert(), () => probabilityCount()],
-  4: [() => percentOfQuantity(), () => percentConvert(), () => meanDepth(), () => probabilityFraction()],
-  5: [() => percentOfQuantity(), () => percentPart(), () => meanDepth(), () => mode()],
-  6: [() => percentPart(), () => percentConvert(), () => median(), () => mode()],
-  7: [() => percentOfQuantity(), () => median(), () => probabilityFraction(), () => meanDepth()],
-  8: [() => percentPart(), () => median(), () => probabilityFraction(), () => chartDiff()],
-  9: [() => percentOfQuantity(), () => percentPart(), () => median(), () => probabilityFraction()],
-  10: [() => percentPart(), () => median(), () => mode(), () => probabilityFraction()],
+  1: [() => chartMost(), () => chartTotal(), () => percentOfQuantity(), () => probabilityCount(), () => chartLeast(), () => kombinasjoner()],
+  2: [() => chartMost(), () => chartDiff(), () => percentOfQuantity(), () => probabilityCount(), () => chartLeast(), () => kombinasjoner()],
+  3: [() => chartDiff(), () => chartTotal(), () => percentConvert(), () => probabilityCount(), () => variasjonsbredde(), () => desimalProsent()],
+  4: [() => percentOfQuantity(), () => percentConvert(), () => meanDepth(), () => probabilityFraction(), () => desimalProsent(), () => variasjonsbredde()],
+  5: [() => percentOfQuantity(), () => percentPart(), () => meanDepth(), () => mode(), () => prosentOkning(), () => kombinasjoner()],
+  6: [() => percentPart(), () => percentConvert(), () => median(), () => mode(), () => prosentRabatt(), () => variasjonsbredde()],
+  7: [() => percentOfQuantity(), () => median(), () => probabilityFraction(), () => meanDepth(), () => prosentOkning(), () => sannsynlighetProsent()],
+  8: [() => percentPart(), () => median(), () => probabilityFraction(), () => chartDiff(), () => prosentRabatt(), () => sannsynlighetProsent()],
+  9: [() => percentOfQuantity(), () => percentPart(), () => median(), () => probabilityFraction(), () => prosentOkning(), () => sannsynlighetProsent()],
+  10: [() => percentPart(), () => median(), () => mode(), () => probabilityFraction(), () => prosentRabatt(), () => sannsynlighetProsent()],
 };

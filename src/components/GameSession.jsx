@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import NomerDisplay from './NomerDisplay.jsx';
 import TallinjeDisplay from './TallinjeDisplay.jsx';
+import SekvensDisplay from './SekvensDisplay.jsx';
 import TelleScene from './TelleScene.jsx';
 import ArrayDisplay from './ArrayDisplay.jsx';
 import BrokDisplay from './BrokDisplay.jsx';
@@ -9,7 +10,7 @@ import KoordinatDisplay from './KoordinatDisplay.jsx';
 import SoyleDiagram from './SoyleDiagram.jsx';
 import FigurDisplay from './FigurDisplay.jsx';
 import MyntDisplay from './MyntDisplay.jsx';
-import { Confetti, DiamondBurst, StarRating } from './Celebrations.jsx';
+import { Confetti, DiamondBurst, StarRating, SixSevenMeme } from './Celebrations.jsx';
 import { sfx } from '../sound.js';
 import { generateQuestion } from '../data/questions.js';
 import { SESSION_LENGTH } from '../data/worlds.js';
@@ -18,6 +19,7 @@ import { useAdaptive } from '../hooks/useAdaptive.js';
 import s from './GameSession.module.css';
 
 const CORRECT_DELAY_MS = 1200;
+const SIX_SEVEN_DELAY_MS = 2800; // litt lengre når memet vises
 
 /**
  * En spilløkt på 8 oppgaver i en verden. Oppgavene genereres fra profilens
@@ -38,6 +40,7 @@ export default function GameSession({ world, onExit }) {
   const [chosen, setChosen] = useState(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [reward, setReward] = useState(0);
+  const [sixSeven, setSixSeven] = useState(false);
 
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
@@ -51,6 +54,7 @@ export default function GameSession({ world, onExit }) {
     setIndex(index + 1);
     setQuestion(generateQuestion(world.id, levelRef.current));
     setChosen(null);
+    setSixSeven(false);
     setPhase('question');
   }
 
@@ -62,7 +66,13 @@ export default function GameSession({ world, onExit }) {
       setCorrectCount(updated);
       setPhase('correct');
       sfx.correct();
-      timerRef.current = setTimeout(() => advance(updated), CORRECT_DELAY_MS);
+      // Easter egg: fasit nøyaktig 67 → animert «six seven»-meme.
+      const meme = Number(question.correct) === 67;
+      if (meme) {
+        setSixSeven(true);
+        sfx.reward();
+      }
+      timerRef.current = setTimeout(() => advance(updated), meme ? SIX_SEVEN_DELAY_MS : CORRECT_DELAY_MS);
     } else {
       setPhase('wrong');
       sfx.wrong();
@@ -145,7 +155,7 @@ export default function GameSession({ world, onExit }) {
         </p>
         {question.expression && (
           <p className={s.expression}>
-            <MathText>{question.expression}</MathText>
+            <MathText highlight>{question.expression}</MathText>
           </p>
         )}
         <QuestionVisual visual={question.visual} />
@@ -195,6 +205,8 @@ export default function GameSession({ world, onExit }) {
           </button>
         </div>
       )}
+
+      {sixSeven && <SixSevenMeme />}
     </main>
   );
 }
@@ -217,6 +229,11 @@ function QuestionVisual({ visual, size }) {
         hidden={visual.hidden}
         jump={visual.jump}
       />
+    );
+  }
+  if (visual.type === 'sekvens') {
+    return (
+      <SekvensDisplay terms={visual.terms} answer={visual.answer} labels={visual.labels} reveal={visual.reveal} />
     );
   }
   if (visual.type === 'telle') {

@@ -176,15 +176,138 @@ function coordIdentify({ min = 0, max = 6 } = {}) {
   });
 }
 
+// ---- Tallsprang i posisjonssystemet ----
+
+function tallsprang() {
+  const step = pick([10, 100, 1000]);
+  const opp = Math.random() < 0.5;
+  const n = randInt(step * 2, 9000);
+  const correct = opp ? n + step : n - step;
+  return question({
+    prompt: `Hva er ${step} ${opp ? 'mer' : 'mindre'} enn ${fmt(n)}?`,
+    choiceType: 'text',
+    choices: choicesFrom(fmt(correct), [fmt(opp ? n - step : n + step), fmt(n), fmt(correct + step), fmt(correct - step), fmt(correct + 1)]),
+    correct: fmt(correct),
+    explanation: { text: `${fmt(n)} ${opp ? '+' : '−'} ${step} = ${fmt(correct)}.`, visual: null },
+  });
+}
+
+function utvidetForm() {
+  const t = randInt(1, 9);
+  const h = randInt(0, 9);
+  const te = randInt(0, 9);
+  const e = randInt(0, 9);
+  const n = t * 1000 + h * 100 + te * 10 + e;
+  const parts = [t * 1000, h * 100, te * 10, e].filter((x) => x > 0).map(fmt).join(' + ');
+  return question({
+    prompt: `Hvilket tall er det samme som ${parts}?`,
+    choiceType: 'text',
+    choices: choicesFrom(fmt(n), [fmt(n + 100), fmt(n - 10), fmt(n + 9), fmt(n - 100), fmt(n + 1000)]),
+    correct: fmt(n),
+    explanation: { text: `${parts} = ${fmt(n)}.`, visual: null },
+  });
+}
+
+// Tosifret · ensifret (store tall).
+function tosifretGanger() {
+  const a = randInt(12, 49);
+  const b = randInt(3, 8);
+  const p = a * b;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${a} · ${b}`,
+    choiceType: 'text',
+    choices: choicesFrom(fmt(p), [fmt(p + 10), fmt(p - 10), fmt(p + 1), fmt(p + 100), fmt(p - 1)]),
+    correct: fmt(p),
+    explanation: { text: `${a} · ${b} = ${fmt(p)}.`, visual: null },
+  });
+}
+
+function delTier() {
+  const pow = pick([10, 100]);
+  const q = randInt(2, 99);
+  const n = q * pow;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${fmt(n)} : ${pow}`,
+    choiceType: 'text',
+    choices: choicesFrom(fmt(q), [fmt(q * 10), fmt(q + 1), fmt(q - 1), fmt(q + 10)]),
+    correct: fmt(q),
+    explanation: { text: `${fmt(n)} : ${pow} = ${fmt(q)}.`, visual: null },
+  });
+}
+
+// ---- Negative tall ----
+
+function negAddSub() {
+  const a = randInt(-9, 5);
+  const b = randInt(2, 12);
+  const minus = Math.random() < 0.5;
+  const correct = minus ? a - b : a + b;
+  return question({
+    prompt: 'Regn ut:',
+    expression: `${a} ${minus ? '−' : '+'} ${b}`,
+    choices: makeChoices(correct, { min: -30, max: 30, spread: 3 }),
+    correct,
+    explanation: { text: `${a} ${minus ? '−' : '+'} ${b} = ${correct}.`, visual: null },
+  });
+}
+
+function negAvstand() {
+  const a = -randInt(1, 9);
+  const b = randInt(1, 9);
+  const correct = b - a;
+  return question({
+    prompt: `Hvor mange steg er det fra ${a} til ${b} på tallinja?`,
+    visual: { type: 'tallinje', from: a - 1, to: b + 1, step: 1, hidden: [] },
+    choices: makeChoices(correct, { min: 1, max: 25, spread: 3 }),
+    correct,
+    explanation: { text: `Fra ${a} til ${b} er ${b} − (${a}) = ${correct} steg.`, visual: null },
+  });
+}
+
+const SPACE_PLACES = ['romstasjonen', 'månebasen', 'Mars-roveren', 'satellitten'];
+
+function temperaturStig() {
+  const natt = -randInt(2, 12);
+  const dag = randInt(1, 10);
+  const correct = dag - natt;
+  return question({
+    prompt: `På ${pick(SPACE_PLACES)} var det ${natt}° om natta og ${dag}° om dagen. Hvor mange grader steg temperaturen?`,
+    choices: makeChoices(correct, { min: 1, max: 30, spread: 3 }),
+    correct,
+    explanation: { text: `${dag} − (${natt}) = ${correct}°.`, visual: null },
+  });
+}
+
+// ---- Primtall ----
+
+const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23];
+
+function primtall() {
+  const p = pick(PRIMES);
+  const comps = [];
+  while (comps.length < 3) {
+    const c = randInt(4, 25);
+    if (!PRIMES.includes(c) && !comps.includes(c) && c !== p) comps.push(c);
+  }
+  return question({
+    prompt: 'Hvilket tall er et primtall (kan bare deles på 1 og seg selv)?',
+    choices: shuffle([p, ...comps]),
+    correct: p,
+    explanation: { text: `${p} er et primtall — det kan bare deles på 1 og ${p}.`, visual: null },
+  });
+}
+
 export const pools = {
-  1: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 5 }), () => negLine()],
-  2: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 6 }), () => rounding()],
-  3: [() => rounding(), () => negLine(), () => coordIdentify({ min: 0, max: 6 }), () => largeAddSub()],
-  4: [() => negTemperature(), () => negOrder(), () => rounding(), () => placeValue()],
-  5: [() => negTemperature(), () => negOrder(), () => largeAddSub(), () => multiplyPower()],
-  6: [() => multiplyPower(), () => largeAddSub(), () => negTemperature(), () => coordIdentify({ min: -4, max: 4 })],
-  7: [() => largeAddSub(), () => multiplyPower(), () => coordIdentify({ min: -5, max: 5 }), () => negOrder()],
-  8: [() => largeAddSub(), () => rounding(), () => negTemperature(), () => multiplyPower()],
-  9: [() => multiplyPower(), () => largeAddSub(), () => coordIdentify({ min: -5, max: 5 }), () => negTemperature()],
-  10: [() => largeAddSub(), () => multiplyPower(), () => negOrder(), () => coordIdentify({ min: -5, max: 5 })],
+  1: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 5 }), () => negLine(), () => tallsprang()],
+  2: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 6 }), () => rounding(), () => tallsprang(), () => utvidetForm()],
+  3: [() => rounding(), () => negLine(), () => coordIdentify({ min: 0, max: 6 }), () => largeAddSub(), () => utvidetForm(), () => tallsprang()],
+  4: [() => negTemperature(), () => negOrder(), () => rounding(), () => placeValue(), () => negAvstand(), () => delTier()],
+  5: [() => negTemperature(), () => negOrder(), () => largeAddSub(), () => multiplyPower(), () => negAddSub(), () => tosifretGanger()],
+  6: [() => multiplyPower(), () => largeAddSub(), () => negTemperature(), () => coordIdentify({ min: -4, max: 4 }), () => negAddSub(), () => delTier()],
+  7: [() => largeAddSub(), () => multiplyPower(), () => coordIdentify({ min: -5, max: 5 }), () => negOrder(), () => negAvstand(), () => primtall()],
+  8: [() => largeAddSub(), () => rounding(), () => negTemperature(), () => multiplyPower(), () => temperaturStig(), () => tosifretGanger()],
+  9: [() => multiplyPower(), () => largeAddSub(), () => coordIdentify({ min: -5, max: 5 }), () => negTemperature(), () => negAddSub(), () => primtall()],
+  10: [() => largeAddSub(), () => multiplyPower(), () => negOrder(), () => coordIdentify({ min: -5, max: 5 }), () => temperaturStig(), () => tosifretGanger()],
 };

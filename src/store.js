@@ -1,6 +1,8 @@
 // All lesing og skriving til localStorage skjer her — ingen komponenter
 // kaller localStorage direkte.
 
+import { legacyVariant, resolveVariant } from './data/furniture.js';
+
 const STORAGE_KEY = 'matteverdener_v1';
 
 export const MAX_PROFILES = 5;
@@ -20,7 +22,29 @@ function makeId() {
 }
 
 function emptyRoom(name) {
-  return { id: makeId(), name, floor: null, wallpaper: null, window: null, furniture: [], decorations: [] };
+  return { id: makeId(), name, floor: null, wallpaper: null, window: null, placed: [] };
+}
+
+// Gjør om et eldre rom (furniture[]/decorations[]/positions{}) til nye
+// `placed`-instanser med variant-id-er.
+function migrateRoom(room) {
+  if (Array.isArray(room.placed)) return room;
+  const positions = room.positions ?? {};
+  const placed = [];
+  for (const oldId of [...(room.furniture ?? []), ...(room.decorations ?? [])]) {
+    const v = legacyVariant(oldId);
+    if (!v) continue;
+    const pos = positions[oldId] ?? {};
+    placed.push({
+      iid: makeId(),
+      v,
+      x: pos.x ?? 150,
+      y: pos.y ?? 200,
+      r: pos.r ?? 0,
+    });
+  }
+  const { furniture, decorations, positions: _p, ...rest } = room;
+  return { ...rest, placed };
 }
 
 /**
@@ -39,17 +63,22 @@ export function nextRoomPrice(roomCount) {
  * @returns {object} migrert profil
  */
 function migrateProfile(profile) {
+  // owned: gamle item-id-er → nye variant-id-er.
+  const owned = [...new Set((profile.owned ?? []).map(legacyVariant).filter(Boolean))];
+
   if (Array.isArray(profile.rooms) && profile.rooms.length > 0) {
-    const activeRoomId = profile.rooms.some((r) => r.id === profile.activeRoomId)
+    const rooms = profile.rooms.map(migrateRoom);
+    const activeRoomId = rooms.some((r) => r.id === profile.activeRoomId)
       ? profile.activeRoomId
-      : profile.rooms[0].id;
-    return { ...profile, activeRoomId };
+      : rooms[0].id;
+    return { ...profile, owned, rooms, activeRoomId };
   }
-  const first = { ...emptyRoom('Rommet mitt'), ...(profile.room ?? {}) };
-  if (!first.id) first.id = makeId();
-  if (!first.name) first.name = 'Rommet mitt';
+  const base = { ...emptyRoom('Rommet mitt'), ...(profile.room ?? {}) };
+  if (!base.id) base.id = makeId();
+  if (!base.name) base.name = 'Rommet mitt';
+  const first = migrateRoom(base);
   const { room, ...rest } = profile;
-  return { ...rest, rooms: [first], activeRoomId: first.id };
+  return { ...rest, owned, rooms: [first], activeRoomId: first.id };
 }
 
 /**
@@ -200,3 +229,45 @@ export function buildAddedRoom(profile) {
   const room = emptyRoom(`Rom ${profile.rooms.length + 1}`);
   return { rooms: [...profile.rooms, room], activeRoomId: room.id };
 }
+
+// ---- Plasserte instanser (placed[]) ----
+
+export function getPlaced(room) {
+  return room.placed ?? [];
+}
+
+/** Antall instanser av en variant i rommet. */
+export function countPlaced(room, variant) {
+  return getPlaced(room).filter((it) => it.v === variant).length;
+}
+
+/** Standard startposisjon for en ny instans (litt forskjøvet etter antall). */
+function defaultSpot(room, variant) {
+  const n = countPlaced(room, variant);
+  return { x: 150 + ((n * 18) % 90) - 36, y: 200 + ((n * 14) % 70) - 28, r: 0 };
+}
+
+/** Legg til én instans av en variant; returnerer nytt rom. */
+export function addPlaced(room, variant) {
+  const spot = defaultSpot(room, variant);
+  return { ...room, placed: [...getPlaced(room), { iid: makeId(), v: variant, ...spot }] };
+}
+
+/** Fjern den sist plasserte instansen av en variant; returnerer nytt rom. */
+export function removeOnePlaced(room, variant) {
+  const list = getPlaced(room);
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (list[i].v === variant) {
+      return { ...room, placed: [...list.slice(0, i), ...list.slice(i + 1)] };
+    }
+  }
+  return room;
+}
+
+/** Oppdater posisjon/rotasjon for én instans (etter iid). */
+export function updatePlaced(room, iid, patch) {
+  return { ...room, placed: getPlaced(room).map((it) => (it.iid === iid ? { ...it, ...patch } : it)) };
+}
+
+/** Slå opp variant → { type, color }; eksponert for komponenter. */
+export { resolveVariant };

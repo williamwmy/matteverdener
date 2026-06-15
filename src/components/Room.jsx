@@ -4,18 +4,18 @@ import ItemArt from './ItemArt.jsx';
 import IsoItem, { ISO } from './IsoItem.jsx';
 import IsoRug, { RUG } from './IsoRug.jsx';
 import { getItem } from '../data/shopItems.js';
+import { resolveVariant } from '../data/furniture.js';
 import { useProfile } from '../hooks/useProfile.js';
-import { getActiveRoom, buildAddedRoom, nextRoomPrice, replaceRoom } from '../store.js';
+import { getActiveRoom, getPlaced, buildAddedRoom, nextRoomPrice, replaceRoom, updatePlaced } from '../store.js';
 import { sfx } from '../sound.js';
 import s from './Room.module.css';
 
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
 /**
- * Rommet i isometrisk kabinett-perspektiv: gulv + to vegger bygget med
- * CSS 3D transforms. Gulvmøbler tegnes isometrisk i et 2D-lag oppå rommet.
- * Møbler og dekor kan dras dit man vil — skjermbevegelse regnes om til
- * rommets gulv-/vegg-koordinater og lagres per gjenstand i rommet.
+ * Rommet i isometrisk kabinett-perspektiv. Hver plasserte gjenstand er en egen
+ * instans (room.placed); flere av samme er lov. Gjenstandene kan dras (flytte)
+ * og trykkes (snurre 90°).
  * @param {{ onBack: function(): void, onOpenShop: function(): void }} props
  */
 export default function Room({ onBack, onOpenShop }) {
@@ -30,39 +30,35 @@ export default function Room({ onBack, onOpenShop }) {
   // Dra-tilstand: `live` driver visningen, `dragRef` holder startverdiene.
   const layerRef = useRef(null);
   const dragRef = useRef(null);
-  const [live, setLive] = useState(null); // { id, x, y }
+  const [live, setLive] = useState(null); // { iid, x, y, r }
 
-  function positionOf(item) {
-    if (live && live.id === item.id) return { x: live.x, y: live.y, r: live.r };
-    const ov = room.positions?.[item.id];
-    if (ov) return { x: ov.x, y: ov.y, r: ov.r ?? 0 };
-    return { x: item.placement.x, y: item.placement.y, r: 0 };
+  function positionOf(inst) {
+    if (live && live.iid === inst.iid) return { x: live.x, y: live.y, r: live.r };
+    return { x: inst.x, y: inst.y, r: inst.r ?? 0 };
   }
 
-  function startDrag(item, e) {
+  function startDrag(inst, type, e) {
     e.preventDefault();
     const rect = layerRef.current.getBoundingClientRect();
     const scale = rect.width / 320; // laget er 320px uskalert
-    const base = positionOf(item);
+    const base = positionOf(inst);
     dragRef.current = {
-      id: item.id,
-      surface: item.placement.surface,
+      iid: inst.iid,
+      surface: type.surface,
+      kind: type.kind,
       baseX: base.x,
       baseY: base.y,
       baseR: base.r,
       startCX: e.clientX,
       startCY: e.clientY,
       scale,
-      w: item.placement.w,
-      h: item.placement.h,
+      w: type.footprint.w,
+      h: type.footprint.h,
       moved: false,
     };
-    setLive({ id: item.id, x: base.x, y: base.y, r: base.r });
+    setLive({ iid: inst.iid, x: base.x, y: base.y, r: base.r });
   }
 
-  // Mens man drar: lytt globalt slik at det funker selv om pekeren forlater
-  // gjenstanden. Skjermdelta regnes om til lokale koordinater via invers av
-  // gulv-/vegg-projeksjonen, og lagres når man slipper.
   useEffect(() => {
     if (!live) return;
     function onMove(e) {
@@ -70,7 +66,6 @@ export default function Room({ onBack, onOpenShop }) {
       if (!d) return;
       const dxC = e.clientX - d.startCX;
       const dyC = e.clientY - d.startCY;
-      // Liten terskel skiller et trykk (snurr) fra et dra (flytt).
       if (!d.moved && Math.hypot(dxC, dyC) > 8) d.moved = true;
       if (!d.moved) return;
       const dSX = dxC / d.scale;
@@ -87,25 +82,23 @@ export default function Room({ onBack, onOpenShop }) {
         x = clamp(d.baseX + 1.4142 * dSX, 0, 320 - d.w);
         y = clamp(d.baseY + 0.7001 * dSX + 1.2206 * dSY, 0, 170 - d.h);
       }
-      setLive({ id: d.id, x, y, r: d.baseR });
+      setLive({ iid: d.iid, x, y, r: d.baseR });
     }
     function onUp() {
       const d = dragRef.current;
       dragRef.current = null;
       setLive((lp) => {
         if (!lp || !d) return null;
-        let entry;
+        let patch;
         if (d.moved) {
-          entry = { x: lp.x, y: lp.y, r: d.baseR };
+          patch = { x: lp.x, y: lp.y };
         } else if (d.surface === 'floor') {
-          // Trykk uten å dra → snurr gulvmøbelet 90°.
-          entry = { x: d.baseX, y: d.baseY, r: (d.baseR + 1) % 4 };
+          patch = { r: (d.baseR + 1) % 4 }; // trykk → snurr gulvgjenstand
           sfx.tap();
         } else {
           return null; // veggdekor roteres ikke
         }
-        const positions = { ...(room.positions ?? {}), [d.id]: entry };
-        updateActiveProfile({ rooms: replaceRoom(activeProfile, room.id, { ...room, positions }) });
+        updateActiveProfile({ rooms: replaceRoom(activeProfile, room.id, updatePlaced(room, d.iid, patch)) });
         return null;
       });
     }
@@ -115,9 +108,8 @@ export default function Room({ onBack, onOpenShop }) {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
     };
-    // Bind kun når en ny dra-økt starter (id går fra null → id).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live?.id]);
+  }, [live?.iid]);
 
   function switchRoom(id) {
     if (id !== room.id) updateActiveProfile({ activeRoomId: id });
@@ -135,32 +127,28 @@ export default function Room({ onBack, onOpenShop }) {
     updateActiveProfile({ ...buildAddedRoom(activeProfile), diamonds: activeProfile.diamonds - roomPrice });
   }
 
-  const furniture = room.furniture.map(getItem).filter(Boolean);
-  const decorations = room.decorations.map(getItem).filter(Boolean);
-  const wallItems = (surface) =>
-    decorations.filter((item) => item.placement?.surface === surface);
-  const isEmpty = furniture.length === 0 && decorations.length === 0;
-  const windowItem = room.window ? getItem(room.window) : null;
+  // Slå opp hver instans → form/farge, og del opp etter type.
+  const items = getPlaced(room)
+    .map((inst) => {
+      const rv = resolveVariant(inst.v);
+      return rv ? { inst, type: rv.type, color: rv.color.value } : null;
+    })
+    .filter(Boolean);
 
-  // Gulvmøblene tegnes som flate «standere» i et 2D-lag oppå 3D-rommet, slik
-  // at de aldri skjærer inn i veggene. Hvert gulvpunkt projiseres til skjerm-
-  // koordinater med samme transform som rommet, og sorteres bakfra og frem
-  // (etter gjeldende posisjon, så de bytter dybde mens man drar).
-  const place = (item) => {
-    const pos = positionOf(item);
-    return { item, rotation: pos.r, ...projectFloor(pos.x, pos.y) };
+  const project = (it) => {
+    const pos = positionOf(it.inst);
+    return { ...it, rotation: pos.r, pos, ...projectFloor(pos.x, pos.y) };
   };
 
-  // Tepper ligger flatt og tegnes UNDER de stående møblene.
-  const placedRugs = decorations
-    .filter((item) => item.kind === 'rug')
-    .map(place)
+  const rugs = items.filter((it) => it.type.kind === 'rug').map(project).sort((a, b) => a.depth - b.depth);
+  const floorItems = items
+    .filter((it) => it.type.kind === 'furniture' && it.type.surface === 'floor')
+    .map(project)
     .sort((a, b) => a.depth - b.depth);
+  const wallItems = (surface) => items.filter((it) => it.type.kind === 'wall' && it.type.surface === surface);
 
-  const placedFloor = [...furniture, ...decorations]
-    .filter((item) => item.placement?.surface === 'floor' && item.kind !== 'rug')
-    .map(place)
-    .sort((a, b) => a.depth - b.depth);
+  const isEmpty = items.length === 0;
+  const windowItem = room.window ? getItem(room.window) : null;
 
   return (
     <main className={`screen ${s.roomScreen}`}>
@@ -171,11 +159,7 @@ export default function Room({ onBack, onOpenShop }) {
         {editingName === null ? (
           <h1 className={s.heading}>
             {room.name}
-            <button
-              className={s.renameBtn}
-              aria-label="Gi rommet et nytt navn"
-              onClick={() => setEditingName(room.name)}
-            >
+            <button className={s.renameBtn} aria-label="Gi rommet et nytt navn" onClick={() => setEditingName(room.name)}>
               ✏️
             </button>
           </h1>
@@ -243,54 +227,52 @@ export default function Room({ onBack, onOpenShop }) {
                   <ItemArt item={windowItem} />
                 </div>
               )}
-              {wallItems('wallRight').map((item) => (
+              {wallItems('wallRight').map(({ inst, type }) => (
                 <div
-                  key={item.id}
+                  key={inst.iid}
                   className={s.wallItem}
-                  style={placementBox(positionOf(item), item.placement)}
-                  onPointerDown={(e) => startDrag(item, e)}
+                  style={placementBox(positionOf(inst), type.footprint)}
+                  onPointerDown={(e) => startDrag(inst, type, e)}
                 >
-                  <ItemArt item={item} />
+                  <ItemArt item={{ id: type.art, category: 'dekor' }} />
                 </div>
               ))}
             </div>
 
             <div className={s.wallLeft} data-wall={room.wallpaper ?? ''}>
-              {wallItems('wallLeft').map((item) => (
+              {wallItems('wallLeft').map(({ inst, type }) => (
                 <div
-                  key={item.id}
+                  key={inst.iid}
                   className={s.wallItem}
-                  style={placementBox(positionOf(item), item.placement)}
-                  onPointerDown={(e) => startDrag(item, e)}
+                  style={placementBox(positionOf(inst), type.footprint)}
+                  onPointerDown={(e) => startDrag(inst, type, e)}
                 >
-                  <ItemArt item={item} />
+                  <ItemArt item={{ id: type.art, category: 'dekor' }} />
                 </div>
               ))}
             </div>
-
           </div>
 
-          {/* Møbellaget ligger oppå rommet og motvirker at flate møbler
-              skjærer inn i veggene. Gjenstandene kan dras. */}
+          {/* Møbellaget ligger oppå rommet (tepper under møblene). */}
           <div className={s.furnitureLayer} ref={layerRef}>
-            {placedRugs.map(({ item, sx, sy, rotation }) => {
-              const dragging = live?.id === item.id;
+            {rugs.map(({ inst, type, color, sx, sy, rotation }) => {
+              const dragging = live?.iid === inst.iid;
               return (
                 <div
-                  key={item.id}
+                  key={inst.iid}
                   className={dragging ? `${s.piece} ${s.pieceDragging}` : s.piece}
                   style={{ left: sx - RUG.ax, top: sy - RUG.ay }}
-                  onPointerDown={(e) => startDrag(item, e)}
+                  onPointerDown={(e) => startDrag(inst, type, e)}
                 >
-                  <IsoRug id={item.id} rotation={rotation} />
+                  <IsoRug color={color} motif={type.motif} rotation={rotation} />
                 </div>
               );
             })}
-            {placedFloor.map(({ item, sx, sy, rotation }) => {
-              const w = item.placement.w;
-              const dragging = live?.id === item.id;
+            {floorItems.map(({ inst, type, color, sx, sy, rotation }) => {
+              const w = type.footprint.w;
+              const dragging = live?.iid === inst.iid;
               return (
-                <Fragment key={item.id}>
+                <Fragment key={inst.iid}>
                   <div
                     className={s.shadow}
                     style={{ left: sx - w * 0.42, top: sy - 12, width: w * 0.84, height: 24 }}
@@ -298,9 +280,9 @@ export default function Room({ onBack, onOpenShop }) {
                   <div
                     className={dragging ? `${s.piece} ${s.pieceDragging}` : s.piece}
                     style={{ left: sx - ISO.ax, top: sy - ISO.ay }}
-                    onPointerDown={(e) => startDrag(item, e)}
+                    onPointerDown={(e) => startDrag(inst, type, e)}
                   >
-                    <IsoItem id={item.id} rotation={rotation} />
+                    <IsoItem shape={type.shape} color={color} rotation={rotation} />
                   </div>
                 </Fragment>
               );
@@ -318,12 +300,11 @@ export default function Room({ onBack, onOpenShop }) {
   );
 }
 
-function placementBox(pos, placement) {
-  return { left: pos.x, top: pos.y, width: placement.w, height: placement.h };
+function placementBox(pos, footprint) {
+  return { left: pos.x, top: pos.y, width: footprint.w, height: footprint.h };
 }
 
-// Projiserer et gulvpunkt (0–320) til skjermkoordinater i møbellaget, med
-// samme transform som .room (rotateX(55deg) rotateZ(45deg), origo i midten).
+// Projiserer et gulvpunkt (0–320) til skjermkoordinater i møbellaget.
 const ORIGIN = 160;
 const COS55 = Math.cos((55 * Math.PI) / 180);
 

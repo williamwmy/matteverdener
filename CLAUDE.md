@@ -20,9 +20,9 @@ trykkflater (≥44px), `prefers-reduced-motion` respektert.
 
 Hele MVP-en er på plass og fungerer:
 
-- **7 verdener** med ~20 curriculumforankrede oppgavetyper hver, fordelt på
-  nivå 1–10 (se «Verdener» under). De **låses opp i rekkefølge**: neste verden
-  åpner når du har tjent den første stjernen i forrige.
+- **7 verdener** med 16–23 curriculumforankrede oppgavetyper hver (~125 totalt),
+  fordelt på nivå 1–10 (se «Verdener» under). De **låses opp i rekkefølge**:
+  neste verden åpner når du har tjent den første stjernen i forrige.
 - **Synlig progresjon per verden**: stjerner (0–3) etter antall riktige svar
   samlet (`STAR_STEPS = [12, 30, 50]` i `worlds.js`), vist som stjernerad +
   framgangsmåler på verdenskortet. Opplåsing styres av `isWorldUnlocked`.
@@ -34,9 +34,21 @@ Hele MVP-en er på plass og fungerer:
   perfekt-bonus som også øker med nivået.
 - **Skjermer**: startskjerm (m/ versjon), profilvelger (maks 5, slett m/
   bekreftelse), verdenskart, spilløkt, isometrisk rom (CSS 3D), butikk.
+- **Møbelkatalog + butikk**: én katalog (`src/data/furniture.js`) med
+  møbel*typer* (form + fargevarianter). Hver vare er en variant `«type:farge»`
+  (f.eks. `stol:rod`). Butikken viser ett kort per type med fargevelger; etter
+  kjøp kan du legge inn **flere av samme** vare (+/−-teller). Gulv/vegg/vindu er
+  fortsatt engangsvalg (singletoner i `shopItems.js`).
 - **Visuelle oppgavekomponenter**: NomerDisplay, TallinjeDisplay (m/ hopp og
-  negative tall), TelleScene, ArrayDisplay, BrokDisplay, KoordinatDisplay,
-  SoyleDiagram, FigurDisplay.
+  negative tall), SekvensDisplay (tallmønster/-følge på tallinje med pil-hopp,
+  f.eks. `1, 4, 9, ?`), TelleScene, ArrayDisplay, BrokDisplay, KoordinatDisplay,
+  SoyleDiagram, FigurDisplay, MyntDisplay.
+- **Easter eggs**: (1) Konami-koden (`↑↑↓↓←→←→ b a`, `useKonamiCode`) på
+  verdenskartet åpner `CheatDialog` der man kan legge til diamanter *og* låse opp
+  alle verdener (`unlockAllWorlds` løfter hver verden utenom den siste til
+  `UNLOCK_CORRECT` riktige). (2) Svarer barnet riktig og fasiten er nettopp **67**, spretter en
+  animert «six seven»-meme opp (`SixSevenMeme` i `Celebrations.jsx`); trigges i
+  `GameSession.handleAnswer` på `Number(question.correct) === 67`.
 - **Per-verden tema**: egen bakgrunn og emoji-stripe i spilløkten.
 - **Lydeffekter**: syntetisert med Web Audio API i `src/sound.js` (ingen
   lydfiler) — riktig/feil/belønning/kjøp/klikk. Av/på-bryteren (`SoundToggle`)
@@ -68,7 +80,8 @@ src/
     worlds.js              # metadata for de 7 verdenene (navn, tema, farge)
     questions.js           # DISPATCHER: ruter (worldId, level) → riktig verden
     questionHelpers.js     # delte verktøy (randInt, makeChoices, choicesFrom …)
-    shopItems.js           # butikkvarer med faste rom-slots
+    furniture.js           # møbelkatalog: TYPES (form + farger) + variant-/migrering
+    shopItems.js           # singletoner (gulv/vegg/vindu) + vindusvisning
     worlds/                # ÉN FIL PER VERDEN — her ligger oppgavene
       tallskogen.js
       kystbyen.js
@@ -78,7 +91,7 @@ src/
       middelalderborgen.js
       fremtidensby.js
   components/               # én komponent per fil (.jsx + .module.css)
-  hooks/                    # useProfile, useAdaptive
+  hooks/                    # useProfile, useAdaptive, useKonamiCode
   context/ProfileContext.jsx
   store.js                 # alt av localStorage-tilgang
 ```
@@ -102,8 +115,11 @@ src/
    }
    ```
 4. `visual.type` rutes i `GameSession.jsx` (`QuestionVisual`) til riktig
-   komponent: `nomer`, `tallinje`, `telle`, `array`, `brok`, `koordinat`,
-   `soyle`, `figur`.
+   komponent: `nomer`, `tallinje`, `sekvens`, `telle`, `array`, `brok`,
+   `koordinat`, `soyle`, `figur`, `mynter`. For tallmønstre gir `sekvens`
+   `{ terms, answer, labels, reveal }` en tallinje med pil-hopp (siste hopp mot
+   `?` er bevisst uten etikett; sett `reveal: true` i `explanation.visual` for å
+   vise fasit + alle hopp).
 5. Bruk `makeChoices(correct, {min,max,spread})` for talldistraktører og
    `choicesFrom(correct, [distraktører])` for tekst/brøk. Pass på at du alltid
    har minst 3 unike distraktører, ellers kaster `choicesFrom`.
@@ -127,22 +143,34 @@ Profil: `{ id, name, avatar, createdAt, diamonds, adaptiveLevel, rooms[], active
 `adaptiveLevel` er felles på tvers av verdener (én verdi per profil) — en ny
 profil starter på 1 og møter de letteste oppgavene i alle verdener.
 
-Hvert rom er `{ id, name, floor, wallpaper, window, furniture[], decorations[] }`
-og kan døpes om i UI. `owned[]` er felles for profilen (du eier en gjenstand én
-gang og kan plassere den i flere rom); hvert rom har sin egen innredning.
+Hvert rom er `{ id, name, floor, wallpaper, window, placed[] }` og kan døpes om
+i UI. `owned[]` er felles for profilen og inneholder **variant-id-er**
+(`«type:farge»`, f.eks. `sofa:lilla`) + singleton-id-er (`gulv-…`/`vegg-…`/
+`vindu-…`); du eier en variant én gang men kan plassere den i flere rom og i
+flere eksemplarer. Hver plasserte gjenstand er en egen instans i `placed[]`:
+`{ iid, v, x, y, r }` der `v` er variant-id-en og `r` er rotasjon (0–3).
+Hjelpere i `store.js`: `getPlaced`, `countPlaced`, `addPlaced`,
+`removeOnePlaced`, `updatePlaced`. `furniture.js` slår opp en variant →
+`{ type, color }` via `resolveVariant`.
+
 Profilen starter med ett gratis rom; flere kan kjøpes for diamanter
 (`ROOM_PRICES`/`nextRoomPrice` i `store.js`, maks `MAX_ROOMS`). `store.js`
-migrerer gamle profiler som hadde ett enkelt `room`-felt til `rooms[]` +
-`activeRoomId` ved innlasting.
+migrerer gamle profiler ved innlasting: enkelt `room` → `rooms[]` +
+`activeRoomId`, og gamle `furniture[]`/`decorations[]`/`positions{}` med flate
+item-id-er → `placed[]` med variant-id-er (`legacyVariant` i `furniture.js`).
 
-Gulvmøbler tegnes i `Room.jsx` isometrisk (`IsoItem` — klosser med topp/sider)
-i et 2D-lag oppå 3D-rommet (`projectFloor` projiserer gulvpunkt → skjerm,
-sortert bakfra og frem), slik at de aldri skjærer inn i veggene. Vegger, vindu
-og veggdekor ligger i 3D-laget. Tepper (`kind: 'rug'` i `shopItems.js`, kategori
-«Tepper») tegnes flatt (`IsoRug`) i samme lag, men *under* de stående møblene.
-Møbler, dekor og tepper kan **dras** (flyttes) og **snurres** (trykk uten å dra
-→ 90°); per-gjenstand-tilstand lagres i `room.positions[id] = { x, y, r }` (r =
-rotasjon 0–3).
+Gulvmøbler tegnes i `Room.jsx` isometrisk (`IsoItem` — klosser med topp/sider,
+fargelagt fra varianten) i et 2D-lag oppå 3D-rommet (`projectFloor` projiserer
+gulvpunkt → skjerm, sortert bakfra og frem), slik at de aldri skjærer inn i
+veggene. Vegger, vindu og veggdekor ligger i 3D-laget. Tepper (`kind: 'rug'`)
+tegnes flatt (`IsoRug`) i samme lag, men *under* de stående møblene. Møbler,
+dekor og tepper kan **dras** (flyttes) og **snurres** (trykk uten å dra → 90°);
+tilstanden lagres direkte på instansen i `placed[]`.
+
+**Gotcha i `IsoItem`**: ved rotasjon sorteres klossene på dybde (`cx+cy+cz`).
+Stablede deler som skal kunne skjules av hverandre (f.eks. TV-skjermen vs. den
+mørke baksiden) må ha **samme `cz`**, ellers tegnes den høyeste alltid øverst —
+da «lyser» skjermen gjennom baksiden uansett rotasjon.
 
 ## Kjente forenklinger / mulige neste steg
 

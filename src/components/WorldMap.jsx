@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import DiamondCounter from './DiamondCounter.jsx';
 import SoundToggle from './SoundToggle.jsx';
+import CheatDialog from './CheatDialog.jsx';
 import {
   WORLDS,
   STAR_STEPS,
   WORLD_GOAL,
+  UNLOCK_CORRECT,
   getWorld,
   isWorldUnlocked,
   worldCorrect,
   worldStars,
 } from '../data/worlds.js';
 import { useProfile } from '../hooks/useProfile.js';
+import { useKonamiCode } from '../hooks/useKonamiCode.js';
 import { sfx } from '../sound.js';
 import s from './WorldMap.module.css';
 
@@ -43,7 +47,34 @@ function WorldProgress({ profile, world }) {
  * }} props
  */
 export default function WorldMap({ onSelectWorld, onOpenRoom, onSwitchProfile }) {
-  const { activeProfile } = useProfile();
+  const { activeProfile, updateActiveProfile } = useProfile();
+  const [showCheat, setShowCheat] = useState(false);
+
+  useKonamiCode(() => {
+    sfx.reward();
+    setShowCheat(true);
+  });
+
+  function grantDiamonds(amount) {
+    sfx.purchase();
+    updateActiveProfile({ diamonds: activeProfile.diamonds + amount });
+    setShowCheat(false);
+  }
+
+  const allUnlocked = WORLDS.every((w) => isWorldUnlocked(activeProfile, w.id));
+
+  function unlockAllWorlds() {
+    sfx.purchase();
+    // En verden åpnes når den forrige har ≥ UNLOCK_CORRECT riktige — så vi løfter
+    // hver verden utenom den siste opp dit (uten å redusere bedre progresjon).
+    const wp = { ...(activeProfile.worldProgress ?? {}) };
+    for (const w of WORLDS.slice(0, -1)) {
+      const cur = wp[w.id]?.totalCorrect ?? 0;
+      if (cur < UNLOCK_CORRECT) wp[w.id] = { ...(wp[w.id] ?? {}), totalCorrect: UNLOCK_CORRECT };
+    }
+    updateActiveProfile({ worldProgress: wp });
+    setShowCheat(false);
+  }
 
   return (
     <main className={`screen ${s.map}`}>
@@ -100,6 +131,15 @@ export default function WorldMap({ onSelectWorld, onOpenRoom, onSwitchProfile })
           );
         })}
       </ul>
+
+      {showCheat && (
+        <CheatDialog
+          onGrant={grantDiamonds}
+          onUnlockWorlds={unlockAllWorlds}
+          allUnlocked={allUnlocked}
+          onClose={() => setShowCheat(false)}
+        />
+      )}
     </main>
   );
 }

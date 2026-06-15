@@ -74,6 +74,31 @@ export function DiamondBurst() {
 }
 
 /**
+ * Skjult easter egg: animert «six seven»-meme som spretter opp når barnet
+ * svarer riktig og fasiten er nettopp 67. To håndflater «veier» opp og ned
+ * (6 mot 7) mens teksten spretter. Rent dekorativt — respekterer reduced motion.
+ */
+export function SixSevenMeme() {
+  return (
+    <div className={s.sixSeven} aria-hidden="true">
+      <div className={s.ssInner}>
+        <div className={s.ssHands}>
+          <span className={`${s.ssHand} ${s.ssHandL}`}>
+            <span className={s.ssNum}>6</span>
+            <span className={s.ssPalm}>🫴</span>
+          </span>
+          <span className={`${s.ssHand} ${s.ssHandR}`}>
+            <span className={s.ssNum}>7</span>
+            <span className={s.ssPalm}>🫴</span>
+          </span>
+        </div>
+        <p className={s.ssText}>six seven!</p>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Stjernerad (1–3 fylte) på belønningsskjermen, med liten pop-animasjon.
  * @param {{ filled: number }} props
  */

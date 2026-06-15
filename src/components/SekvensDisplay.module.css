@@ -1,0 +1,64 @@
+.line {
+  max-width: 100%;
+  height: auto;
+}
+
+.axis {
+  stroke: var(--color-text-muted);
+  stroke-width: 3;
+}
+
+.axisHead {
+  fill: var(--color-text-muted);
+}
+
+.dot {
+  fill: var(--color-diamond);
+}
+
+.label {
+  fill: var(--color-text);
+  font-size: 17px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
+
+.answerLabel {
+  fill: var(--color-accent-green);
+  font-size: 18px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
+
+.qCircle {
+  fill: var(--color-accent);
+}
+
+.qMark {
+  fill: #1c1603;
+  font-size: 19px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
+
+.hop {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.hopHead {
+  fill: var(--color-accent);
+}
+
+.hopLabel {
+  fill: var(--color-accent);
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+  font-family: var(--font-family);
+}
