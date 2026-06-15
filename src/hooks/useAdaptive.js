@@ -1,4 +1,5 @@
 import { useProfile } from './useProfile.js';
+import { getWorldLevel } from '../store.js';
 
 export const MIN_LEVEL = 1;
 export const MAX_LEVEL = 10;
@@ -50,7 +51,7 @@ export function useAdaptive() {
    * @param {number} [level] - nivået økten ble spilt på (default: profilens nivå)
    * @returns {number} diamanter tjent
    */
-  function finishSession(worldId, correct, total, level = activeProfile?.adaptiveLevel ?? 1) {
+  function finishSession(worldId, correct, total, level = getWorldLevel(activeProfile, worldId)) {
     if (!activeProfile) return 0;
     const reward = computeReward(correct, total, level);
     const previous = activeProfile.worldProgress[worldId] ?? {
@@ -59,7 +60,10 @@ export function useAdaptive() {
       totalWrong: 0,
     };
     updateActiveProfile({
-      adaptiveLevel: computeNextLevel(activeProfile.adaptiveLevel, correct, total),
+      worldLevels: {
+        ...(activeProfile.worldLevels ?? {}),
+        [worldId]: computeNextLevel(level, correct, total),
+      },
       diamonds: activeProfile.diamonds + reward,
       worldProgress: {
         ...activeProfile.worldProgress,

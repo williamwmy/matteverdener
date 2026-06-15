@@ -4,34 +4,26 @@ import SoundToggle from './SoundToggle.jsx';
 import CheatDialog from './CheatDialog.jsx';
 import {
   WORLDS,
-  STAR_STEPS,
   WORLD_GOAL,
   UNLOCK_CORRECT,
   getWorld,
   isWorldUnlocked,
   worldCorrect,
-  worldStars,
 } from '../data/worlds.js';
 import { useProfile } from '../hooks/useProfile.js';
 import { useKonamiCode } from '../hooks/useKonamiCode.js';
+import { getWorldLevel } from '../store.js';
+import { MIN_LEVEL, MAX_LEVEL } from '../hooks/useAdaptive.js';
 import { sfx } from '../sound.js';
 import s from './WorldMap.module.css';
 
-/** Stjernerad + framgangsmåler som viser progresjonen i en verden. */
+/** Framgangsmåler som viser hvor langt barnet er kommet i en verden. */
 function WorldProgress({ profile, world }) {
-  const stars = worldStars(profile, world.id);
   const correct = worldCorrect(profile, world.id);
   const fill = Math.min(correct / WORLD_GOAL, 1) * 100;
   return (
     <span className={s.progress}>
-      <span className={s.stars} aria-label={`${stars} av ${STAR_STEPS.length} stjerner`}>
-        {[0, 1, 2].map((i) => (
-          <span key={i} className={i < stars ? s.starOn : s.starOff}>
-            {i < stars ? '⭐' : '☆'}
-          </span>
-        ))}
-      </span>
-      <span className={s.bar}>
+      <span className={s.bar} aria-label={`${Math.round(fill)} % fullført`}>
         <span className={s.barFill} style={{ width: `${fill}%` }} />
       </span>
     </span>
@@ -62,6 +54,32 @@ export default function WorldMap({ onSelectWorld, onOpenRoom, onSwitchProfile })
   }
 
   const allUnlocked = WORLDS.every((w) => isWorldUnlocked(activeProfile, w.id));
+
+  const worldLevels = WORLDS.map((w) => ({
+    id: w.id,
+    name: w.name,
+    emoji: w.emoji,
+    level: getWorldLevel(activeProfile, w.id),
+    unlocked: isWorldUnlocked(activeProfile, w.id),
+  }));
+
+  // Lås opp én verden ved å gi den forrige nok riktige (verden 1 er alltid åpen).
+  function unlockOneWorld(worldId) {
+    if (worldId <= 1) return;
+    const prev = worldId - 1;
+    const wp = { ...(activeProfile.worldProgress ?? {}) };
+    const cur = wp[prev]?.totalCorrect ?? 0;
+    if (cur >= UNLOCK_CORRECT) return;
+    sfx.purchase();
+    wp[prev] = { sessionsCompleted: 0, totalWrong: 0, ...(wp[prev] ?? {}), totalCorrect: UNLOCK_CORRECT };
+    updateActiveProfile({ worldProgress: wp });
+  }
+
+  function setWorldLevel(worldId, level) {
+    const clamped = Math.min(Math.max(level, MIN_LEVEL), MAX_LEVEL);
+    sfx.tap();
+    updateActiveProfile({ worldLevels: { ...(activeProfile.worldLevels ?? {}), [worldId]: clamped } });
+  }
 
   function unlockAllWorlds() {
     sfx.purchase();
@@ -137,6 +155,9 @@ export default function WorldMap({ onSelectWorld, onOpenRoom, onSwitchProfile })
           onGrant={grantDiamonds}
           onUnlockWorlds={unlockAllWorlds}
           allUnlocked={allUnlocked}
+          worldLevels={worldLevels}
+          onSetWorldLevel={setWorldLevel}
+          onUnlockWorld={unlockOneWorld}
           onClose={() => setShowCheat(false)}
         />
       )}

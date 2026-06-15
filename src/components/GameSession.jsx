@@ -16,6 +16,7 @@ import { generateQuestion } from '../data/questions.js';
 import { SESSION_LENGTH } from '../data/worlds.js';
 import { useProfile } from '../hooks/useProfile.js';
 import { useAdaptive } from '../hooks/useAdaptive.js';
+import { getWorldLevel } from '../store.js';
 import s from './GameSession.module.css';
 
 const CORRECT_DELAY_MS = 1200;
@@ -31,7 +32,7 @@ export default function GameSession({ world, onExit }) {
   const { finishSession } = useAdaptive();
 
   // Nivået fryses ved øktstart slik at alle 8 oppgaver bruker samme nivå.
-  const levelRef = useRef(activeProfile.adaptiveLevel);
+  const levelRef = useRef(getWorldLevel(activeProfile, world.id));
   const timerRef = useRef(null);
 
   const [index, setIndex] = useState(0);

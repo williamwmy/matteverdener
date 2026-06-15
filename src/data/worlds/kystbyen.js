@@ -156,7 +156,10 @@ function marketTwoStep() {
     prompt: `Måken 🐦 stjeler fra torget! Det er ${boxes} kasser med ${perBox} ${item.name} ${item.emoji} i hver. Måken tar ${eaten}. Hvor mange ${item.name} er igjen?`,
     choices: makeChoices(correct, { min: 0, spread: 4 }),
     correct,
-    explanation: { text: `${perBox} · ${boxes} = ${perBox * boxes}, og ${perBox * boxes} − ${eaten} = ${correct}.`, visual: null },
+    explanation: {
+      text: `${perBox} · ${boxes} = ${perBox * boxes}, og ${perBox * boxes} − ${eaten} = ${correct}.`,
+      visual: { type: 'sekvens', terms: [perBox * boxes], answer: correct, labels: [`−${eaten}`], reveal: true },
+    },
   });
 }
 

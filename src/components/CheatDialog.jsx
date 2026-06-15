@@ -3,15 +3,19 @@ import s from './CheatDialog.module.css';
 
 /**
  * Skjult «juksekode»-dialog (åpnes med Konami-koden på verdenskartet). Spilleren
- * kan legge til diamanter og/eller låse opp alle verdenene.
+ * kan legge til diamanter, låse opp alle verdenene, og se/justere det skjulte
+ * adaptive nivået per verden.
  * @param {{
  *   onGrant: function(number): void,
  *   onUnlockWorlds: function(): void,
  *   allUnlocked: boolean,
+ *   worldLevels: Array<{ id: number, name: string, emoji: string, level: number, unlocked: boolean }>,
+ *   onSetWorldLevel: function(number, number): void,
+ *   onUnlockWorld: function(number): void,
  *   onClose: function(): void,
  * }} props
  */
-export default function CheatDialog({ onGrant, onUnlockWorlds, allUnlocked, onClose }) {
+export default function CheatDialog({ onGrant, onUnlockWorlds, allUnlocked, worldLevels = [], onSetWorldLevel, onUnlockWorld, onClose }) {
   const [value, setValue] = useState('100');
   const inputRef = useRef(null);
 
@@ -72,6 +76,50 @@ export default function CheatDialog({ onGrant, onUnlockWorlds, allUnlocked, onCl
         >
           {allUnlocked ? '✓ Alle verdener er åpne' : '🔓 Lås opp alle verdener'}
         </button>
+
+        <div className={s.divider} aria-hidden="true" />
+
+        <p className={s.levelsTitle}>Skjult nivå per verden</p>
+        <ul className={s.levels}>
+          {worldLevels.map((w) => (
+            <li key={w.id} className={s.levelRow}>
+              <button
+                type="button"
+                className={s.lockBtn}
+                onClick={() => onUnlockWorld(w.id)}
+                disabled={w.unlocked}
+                aria-label={w.unlocked ? `${w.name} er åpen` : `Lås opp ${w.name}`}
+                title={w.unlocked ? 'Åpen' : 'Lås opp'}
+              >
+                {w.unlocked ? '🔓' : '🔒'}
+              </button>
+              <span className={s.levelName}>
+                <span aria-hidden="true">{w.emoji}</span> {w.name}
+              </span>
+              <span className={s.levelStepper}>
+                <button
+                  type="button"
+                  className={s.levelBtn}
+                  aria-label={`Senk nivå i ${w.name}`}
+                  onClick={() => onSetWorldLevel(w.id, w.level - 1)}
+                  disabled={w.level <= 1}
+                >
+                  −
+                </button>
+                <span className={s.levelValue}>{w.level}</span>
+                <button
+                  type="button"
+                  className={s.levelBtn}
+                  aria-label={`Øk nivå i ${w.name}`}
+                  onClick={() => onSetWorldLevel(w.id, w.level + 1)}
+                  disabled={w.level >= 10}
+                >
+                  +
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
       </form>
     </div>
   );

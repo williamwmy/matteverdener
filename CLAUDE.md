@@ -44,9 +44,10 @@ Hele MVP-en er på plass og fungerer:
   f.eks. `1, 4, 9, ?`), TelleScene, ArrayDisplay, BrokDisplay, KoordinatDisplay,
   SoyleDiagram, FigurDisplay, MyntDisplay.
 - **Easter eggs**: (1) Konami-koden (`↑↑↓↓←→←→ b a`, `useKonamiCode`) på
-  verdenskartet åpner `CheatDialog` der man kan legge til diamanter *og* låse opp
-  alle verdener (`unlockAllWorlds` løfter hver verden utenom den siste til
-  `UNLOCK_CORRECT` riktige). (2) Svarer barnet riktig og fasiten er nettopp **67**, spretter en
+  verdenskartet åpner `CheatDialog` der man kan legge til diamanter, låse opp
+  alle verdener (`unlockAllWorlds`) eller én og én (`unlockOneWorld`), og
+  se/justere det skjulte nivået per verden.
+  (2) Svarer barnet riktig og fasiten er nettopp **67**, spretter en
   animert «six seven»-meme opp (`SixSevenMeme` i `Celebrations.jsx`); trigges i
   `GameSession.handleAnswer` på `Number(question.correct) === 67`.
 - **Per-verden tema**: egen bakgrunn og emoji-stripe i spilløkten.
@@ -139,9 +140,11 @@ src/
 ## Datamodell (localStorage `matteverdener_v1`)
 
 Toppnivå: `{ profiles[], activeProfileId, settings: { soundOn } }`.
-Profil: `{ id, name, avatar, createdAt, diamonds, adaptiveLevel, rooms[], activeRoomId, owned[], worldProgress }`.
-`adaptiveLevel` er felles på tvers av verdener (én verdi per profil) — en ny
-profil starter på 1 og møter de letteste oppgavene i alle verdener.
+Profil: `{ id, name, avatar, createdAt, diamonds, worldLevels, rooms[], activeRoomId, owned[], worldProgress }`.
+Det skjulte adaptive nivået er **per verden** (`worldLevels[worldId]`, default 1
+via `getWorldLevel` i `store.js`) — hver verden kalibrerer vanskelighetsgrad
+uavhengig. Eldre profiler med ett felles `adaptiveLevel` migreres ved å så alle
+7 verdenene fra den gamle verdien.
 
 Hvert rom er `{ id, name, floor, wallpaper, window, placed[] }` og kan døpes om
 i UI. `owned[]` er felles for profilen og inneholder **variant-id-er**
@@ -174,8 +177,6 @@ da «lyser» skjermen gjennom baksiden uansett rotasjon.
 
 ## Kjente forenklinger / mulige neste steg
 
-- Ett globalt `adaptiveLevel` per profil deles av alle verdener. Per-verden nivå
-  ville passe bedre når trinn-spennene er så ulike.
 - Geometri/måling/klokke (LK20 for 1.–2.) er bare delvis dekket; klokke,
   kalender og lengde/areal-måling kan bli egne oppgavetyper.
 - Profiler som spilte før verdenene ble åpnet beholder nivået sitt.

@@ -152,17 +152,6 @@ button.world:hover {
   width: 100%;
 }
 
-.stars {
-  display: flex;
-  gap: 2px;
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-.starOff {
-  opacity: 0.4;
-}
-
 .bar {
   width: 80%;
   max-width: 140px;

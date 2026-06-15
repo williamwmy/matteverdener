@@ -397,18 +397,49 @@ function tensMoreLess(cap) {
   });
 }
 
+// Illustrerer et regnestykke som en LØPENDE SUM på tallinja: startverdi, så ett
+// pil-hopp per ledd (+/−), med fasit vist. Brukes i forklaringen så barn som
+// svarer feil ser hvert steg. `steps` = [{ op: '+'|'−', n }].
+function regnestykkeVisual(start, steps) {
+  const totals = [start];
+  const labels = [];
+  let running = start;
+  for (const { op, n } of steps) {
+    labels.push(`${op}${n}`);
+    running = op === '+' ? running + n : running - n;
+    totals.push(running);
+  }
+  return { type: 'sekvens', terms: totals.slice(0, -1), answer: totals[totals.length - 1], labels, reveal: true };
+}
+
 function threeTerms(cap) {
   const spread = Math.max(4, Math.round(cap / 12));
+  let a;
+  let b;
+  let c;
+  let expr;
+  let steps;
   if (Math.random() < 0.5) {
-    const a = randInt(5, Math.floor(cap / 2));
-    const b = randInt(3, Math.floor(cap / 3));
-    const c = randInt(2, Math.min(40, a + b - 1));
-    return basicQuestion(`${a} + ${b} − ${c}`, a + b - c, { spread });
+    a = randInt(5, Math.floor(cap / 2));
+    b = randInt(3, Math.floor(cap / 3));
+    c = randInt(2, Math.min(40, a + b - 1));
+    expr = `${a} + ${b} − ${c}`;
+    steps = [{ op: '+', n: b }, { op: '−', n: c }];
+  } else {
+    a = randInt(3, Math.floor(cap / 3));
+    b = randInt(3, Math.floor(cap / 3));
+    c = randInt(2, cap - a - b);
+    expr = `${a} + ${b} + ${c}`;
+    steps = [{ op: '+', n: b }, { op: '+', n: c }];
   }
-  const a = randInt(3, Math.floor(cap / 3));
-  const b = randInt(3, Math.floor(cap / 3));
-  const c = randInt(2, cap - a - b);
-  return basicQuestion(`${a} + ${b} + ${c}`, a + b + c, { spread });
+  const correct = expr.includes('−') ? a + b - c : a + b + c;
+  return question({
+    prompt: 'Regn ut:',
+    expression: expr,
+    choices: makeChoices(correct, { min: 0, spread }),
+    correct,
+    explanation: { text: `${expr} = ${correct}`, visual: regnestykkeVisual(a, steps) },
+  });
 }
 
 function doubleMissing(cap) {
@@ -429,7 +460,7 @@ function storyProblem(cap, kind) {
       prompt: `${actor.name} ${actor.emoji} har ${a} ${actor.itemName} ${actor.item} og finner ${b} til. Hvor mange ${actor.itemName} har ${actor.pronoun} nå?`,
       choices: makeChoices(a + b, { min: 0, spread }),
       correct: a + b,
-      explanation: { text: `${a} + ${b} = ${a + b}`, visual: null },
+      explanation: { text: `${a} + ${b} = ${a + b}`, visual: regnestykkeVisual(a, [{ op: '+', n: b }]) },
     });
   }
   if (kind === 'sub') {
@@ -439,7 +470,7 @@ function storyProblem(cap, kind) {
       prompt: `${actor.name} ${actor.emoji} har ${a} ${actor.itemName} ${actor.item} og mister ${b}. Hvor mange ${actor.itemName} er igjen?`,
       choices: makeChoices(a - b, { min: 0, spread }),
       correct: a - b,
-      explanation: { text: `${a} − ${b} = ${a - b}`, visual: null },
+      explanation: { text: `${a} − ${b} = ${a - b}`, visual: regnestykkeVisual(a, [{ op: '−', n: b }]) },
     });
   }
   const a = randInt(5, cap);
@@ -450,7 +481,10 @@ function storyProblem(cap, kind) {
     prompt: `${actor.name} ${actor.emoji} plukker ${a} ${actor.itemName} ${actor.item}, mister ${b} og finner ${c} til. Hvor mange ${actor.itemName} har ${actor.pronoun} nå?`,
     choices: makeChoices(correct, { min: 0, spread: Math.max(3, spread) }),
     correct,
-    explanation: { text: `${a} − ${b} + ${c} = ${correct}`, visual: null },
+    explanation: {
+      text: `${a} − ${b} + ${c} = ${correct}`,
+      visual: regnestykkeVisual(a, [{ op: '−', n: b }, { op: '+', n: c }]),
+    },
   });
 }
 

@@ -66,19 +66,26 @@ function migrateProfile(profile) {
   // owned: gamle item-id-er → nye variant-id-er.
   const owned = [...new Set((profile.owned ?? []).map(legacyVariant).filter(Boolean))];
 
+  // Det skjulte nivået er nå per verden. Eldre profiler hadde ett felles
+  // `adaptiveLevel` — vi sår alle 7 verdenene fra det, så ingen mister fremgang.
+  const worldLevels =
+    profile.worldLevels && typeof profile.worldLevels === 'object'
+      ? profile.worldLevels
+      : Object.fromEntries(Array.from({ length: 7 }, (_, i) => [i + 1, profile.adaptiveLevel ?? 1]));
+
   if (Array.isArray(profile.rooms) && profile.rooms.length > 0) {
     const rooms = profile.rooms.map(migrateRoom);
     const activeRoomId = rooms.some((r) => r.id === profile.activeRoomId)
       ? profile.activeRoomId
       : rooms[0].id;
-    return { ...profile, owned, rooms, activeRoomId };
+    return { ...profile, owned, worldLevels, rooms, activeRoomId };
   }
   const base = { ...emptyRoom('Rommet mitt'), ...(profile.room ?? {}) };
   if (!base.id) base.id = makeId();
   if (!base.name) base.name = 'Rommet mitt';
   const first = migrateRoom(base);
   const { room, ...rest } = profile;
-  return { ...rest, owned, rooms: [first], activeRoomId: first.id };
+  return { ...rest, owned, worldLevels, rooms: [first], activeRoomId: first.id };
 }
 
 /**
@@ -141,7 +148,7 @@ export function createProfile(state, name, avatar) {
     avatar,
     createdAt: new Date().toISOString(),
     diamonds: 0,
-    adaptiveLevel: 1,
+    worldLevels: {},
     rooms: [firstRoom],
     activeRoomId: firstRoom.id,
     owned: [],
@@ -188,6 +195,17 @@ export function updateProfile(state, profileId, updates) {
     ...state,
     profiles: state.profiles.map((p) => (p.id === profileId ? { ...p, ...updates } : p)),
   };
+}
+
+/**
+ * Det skjulte adaptive nivået for én verden (default 1). Lagres per verden i
+ * `profile.worldLevels[worldId]`.
+ * @param {object} profile
+ * @param {number} worldId
+ * @returns {number} nivå 1–10
+ */
+export function getWorldLevel(profile, worldId) {
+  return profile?.worldLevels?.[worldId] ?? 1;
 }
 
 /** @param {object} state @returns {boolean} om lyd er på (default: på) */
