@@ -4,7 +4,7 @@
 // brøk, og kjenne igjen/beskrive mønstre og tallfølger.
 // Tema: skjult skatt, sopp, ugler, magiske lykter og hemmeligheter i skogen.
 
-import { randInt, pick, makeChoices, choicesFrom, brokDistraktorer, question } from '../questionHelpers.js';
+import { randInt, pick, shuffle, makeChoices, choicesFrom, brokDistraktorer, question } from '../questionHelpers.js';
 
 // Norsk desimaltegn (komma).
 function nf(x) {
@@ -57,6 +57,53 @@ function compareFractions() {
     choices: nums.map((n) => `${n}/${denom}`),
     correct: `${biggest}/${denom}`,
     explanation: { text: `Når nevneren er lik, er brøken med størst teller størst: ${biggest}/${denom}.`, visual: null },
+  });
+}
+
+// Sammenlign brøker med ULIK teller OG nevner — løses ved felles nevner.
+// Nevnergruppene er valgt med liten felles nevner så omregningen blir pen.
+function compareUlikeBrok() {
+  const g = pick([
+    { denoms: [2, 3, 6], lcm: 6 },
+    { denoms: [2, 4, 8], lcm: 8 },
+    { denoms: [2, 5, 10], lcm: 10 },
+    { denoms: [2, 3, 4, 6], lcm: 12 },
+    { denoms: [3, 4, 6, 12], lcm: 12 },
+  ]);
+  // Alle ekte brøker n/d i gruppa, med kryssverdi (teller når nevner = lcm).
+  const all = [];
+  for (const d of g.denoms) {
+    for (let n = 1; n < d; n++) all.push({ n, d, key: (n * g.lcm) / d, label: `${n}/${d}` });
+  }
+  // Trekk 4 brøker med ulik VERDI, og minst to ulike nevnere/tellere.
+  let chosen = [];
+  let guard = 0;
+  do {
+    const seen = new Set();
+    chosen = [];
+    for (const f of shuffle(all)) {
+      if (seen.has(f.key)) continue; // hopp over ekvivalente brøker
+      seen.add(f.key);
+      chosen.push(f);
+      if (chosen.length === 4) break;
+    }
+  } while (
+    guard++ < 50 &&
+    (chosen.length < 4 ||
+      new Set(chosen.map((f) => f.d)).size < 2 ||
+      new Set(chosen.map((f) => f.n)).size < 2)
+  );
+  const top = chosen.reduce((a, b) => (b.key > a.key ? b : a));
+  const felles = chosen.map((f) => `${f.label} = ${f.key}/${g.lcm}`).join(', ');
+  return question({
+    prompt: 'Hvilken brøk er størst?',
+    choiceType: 'text',
+    choices: shuffle(chosen.map((f) => f.label)),
+    correct: top.label,
+    explanation: {
+      text: `Gjør om til felles nevner ${g.lcm}: ${felles}. Størst teller vinner, så ${top.label} er størst.`,
+      visual: null,
+    },
   });
 }
 
@@ -332,9 +379,9 @@ export const pools = {
   3: [() => fractionOfQuantity(), () => compareFractions(), () => findRule(), () => figurtall(), () => heleIBrok()],
   4: [() => compareFractions(), () => equivalentFraction(), () => figurtall(), () => fractionOfQuantity(), () => heleIBrok(), () => forenkleBrok()],
   5: [() => equivalentFraction(), () => decimalFraction(), () => tenths(), () => findRule(), () => forenkleBrok(), () => rundeDesimal()],
-  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions(), () => rundeDesimal(), () => desimalGanger()],
-  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => equivalentFraction(), () => subDecimals(), () => desimalGanger()],
-  8: [() => addDecimals(), () => decimalFraction(), () => figurtall(), () => addFractions(), () => subDecimals(), () => forenkleBrok()],
-  9: [() => addFractions(), () => addDecimals(), () => sequenceRule(), () => compareFractions(), () => desimalGanger(), () => heleIBrok()],
-  10: [() => addDecimals(), () => addFractions(), () => figurtall(), () => orderDecimals(), () => subDecimals(), () => rundeDesimal()],
+  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions(), () => compareUlikeBrok(), () => desimalGanger()],
+  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => equivalentFraction(), () => compareUlikeBrok(), () => desimalGanger()],
+  8: [() => addDecimals(), () => decimalFraction(), () => figurtall(), () => addFractions(), () => compareUlikeBrok(), () => forenkleBrok()],
+  9: [() => addFractions(), () => addDecimals(), () => sequenceRule(), () => compareUlikeBrok(), () => desimalGanger(), () => heleIBrok()],
+  10: [() => addDecimals(), () => addFractions(), () => figurtall(), () => orderDecimals(), () => compareUlikeBrok(), () => subDecimals()],
 };

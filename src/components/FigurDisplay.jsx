@@ -31,6 +31,22 @@ export default function FigurDisplay({ shape, labels }) {
             {labels.vinkel}
           </text>
         )}
+        {/* Vinkler markert i hvert hjørne (hjørne A nede til venstre, B nede til høyre, C i toppen). */}
+        {labels.va && (
+          <text x="52" y="108" className={s.angle}>
+            {labels.va}
+          </text>
+        )}
+        {labels.vb && (
+          <text x="148" y="108" className={s.angle}>
+            {labels.vb}
+          </text>
+        )}
+        {labels.vc && (
+          <text x="74" y="56" className={s.angle}>
+            {labels.vc}
+          </text>
+        )}
       </svg>
     );
   }

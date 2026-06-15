@@ -48,10 +48,11 @@ function equationTwoStep() {
   const x = randInt(2, 10);
   const b = randInt(1, 12);
   const c = a * x + b;
+  // Trap: c − b = a·x er svaret hvis man glemmer å dele på a til slutt.
   return question({
     prompt: 'Hva er x?',
     expression: `${a}x + ${b} = ${c}`,
-    choices: makeChoices(x, { min: 0, spread: 3 }),
+    choices: choicesFrom(x, [c - b, x + 1, x - 1, x + 2]),
     correct: x,
     explanation: { text: `${a}x = ${c} − ${b} = ${a * x}, så x = ${x}.`, visual: null },
   });
@@ -64,10 +65,12 @@ function evaluateExpression() {
   const b = randInt(1, 12);
   const x = randInt(2, 9);
   const correct = a * x + b;
+  // Distraktører speiler typiske feil: glemte + b (a·x), ganget hele (a·(x+b)),
+  // la sammen alt (a+x+b).
   return question({
     prompt: `🐉 Sett inn x = ${x} i uttrykket. Hva blir det?`,
     expression: `${a}x + ${b}`,
-    choices: makeChoices(correct, { min: 0, spread: 4 }),
+    choices: choicesFrom(correct, [a * x, a * (x + b), a + x + b, correct + 1, correct - 1, correct + 2, correct - 2]),
     correct,
     explanation: { text: `${a} · ${x} + ${b} = ${a * x} + ${b} = ${correct}.`, visual: null },
   });
@@ -162,11 +165,14 @@ function triangleAngle() {
   const b = randInt(30, 150 - a);
   const correct = 180 - a - b;
   return question({
-    prompt: `To vinkler i trekanten er ${a}° og ${b}°. Hvor stor er den tredje vinkelen?`,
-    visual: { type: 'figur', shape: 'trekant', labels: { vinkel: '?' } },
+    prompt: 'Hvor stor er den tredje vinkelen (?) i trekanten?',
+    visual: { type: 'figur', shape: 'trekant', labels: { va: `${a}°`, vb: `${b}°`, vc: '?' } },
     choices: makeChoices(correct, { min: 0, max: 180, spread: 6 }),
     correct,
-    explanation: { text: `Vinklene i en trekant er 180° til sammen: 180 − ${a} − ${b} = ${correct}°.`, visual: null },
+    explanation: {
+      text: `Vinklene i en trekant er 180° til sammen: 180 − ${a} − ${b} = ${correct}°.`,
+      visual: { type: 'figur', shape: 'trekant', labels: { va: `${a}°`, vb: `${b}°`, vc: `${correct}°` } },
+    },
   });
 }
 

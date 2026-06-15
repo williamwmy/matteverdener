@@ -13,9 +13,11 @@ function functionValue() {
   const b = randInt(1, 10);
   const x = randInt(2, 9);
   const correct = a * x + b;
+  // Distraktører speiler typiske feil: glemte + b (a·x), ganget hele (a·(x+b)),
+  // la sammen alt (a+x+b), pluss et naboavvik.
   return question({
     prompt: `Roboten 🤖 følger regelen y = ${a}x + ${b}. Hva er y når x = ${x}?`,
-    choices: makeChoices(correct, { min: 0, spread: 4 }),
+    choices: choicesFrom(correct, [a * x, a * (x + b), a + x + b, correct + 1, correct - 1, correct + 2, correct - 2]),
     correct,
     explanation: { text: `y = ${a} · ${x} + ${b} = ${correct}.`, visual: null },
   });
@@ -65,10 +67,11 @@ function equationBothSides() {
   const x = randInt(2, 9);
   const b = randInt(1, 6);
   const d = b + (a - c) * x; // sikrer heltallsløsning og positive ledd
+  // Trap: d − b = (a − c)·x er svaret hvis man glemmer å dele på (a − c).
   return question({
     prompt: 'Hva er x?',
     expression: `${a}x + ${b} = ${c}x + ${d}`,
-    choices: makeChoices(x, { min: 0, spread: 3 }),
+    choices: choicesFrom(x, [d - b, x + 1, x - 1, x + 2]),
     correct: x,
     explanation: { text: `${a}x − ${c}x = ${d} − ${b} → ${a - c}x = ${d - b}, så x = ${x}.`, visual: null },
   });
@@ -130,16 +133,18 @@ function percentChange() {
   const p = pick([10, 20, 25, 50]);
   const change = (price * p) / 100;
   if (Math.random() < 0.5) {
+    // Traps: la til i stedet (price+change), uendret pris, eller bare beløpet (change).
     return question({
       prompt: `En svevebil 🚗 koster ${price} kr. Den settes ned ${p} %. Hva er den nye prisen?`,
-      choices: makeChoices(price - change, { min: 0, spread: Math.max(4, change / 2) }),
+      choices: choicesFrom(price - change, [price + change, price, change, price - change - 1, price - change + 1]),
       correct: price - change,
       explanation: { text: `${p} % av ${price} er ${change}. ${price} − ${change} = ${price - change} kr.`, visual: null },
     });
   }
+  // Traps: trakk fra i stedet (price−change), uendret pris, eller bare beløpet (change).
   return question({
     prompt: `En leilighet 🏢 i skyskraperen koster ${price} tusen kr. Prisen øker ${p} %. Hva er den nye prisen?`,
-    choices: makeChoices(price + change, { min: 0, spread: Math.max(4, change / 2) }),
+    choices: choicesFrom(price + change, [price - change, price, change, price + change + 1, price + change - 1]),
     correct: price + change,
     explanation: { text: `${p} % av ${price} er ${change}. ${price} + ${change} = ${price + change} tusen kr.`, visual: null },
   });
@@ -164,9 +169,10 @@ function finnXavY() {
   const b = randInt(1, 8);
   const x = randInt(2, 9);
   const y = a * x + b;
+  // Trap: a·x = y − b er svaret hvis man glemmer å dele på a til slutt.
   return question({
     prompt: `Roboten 🤖 følger y = ${a}x + ${b}. Hva er x når y = ${y}?`,
-    choices: makeChoices(x, { min: 0, spread: 3 }),
+    choices: choicesFrom(x, [a * x, x + 1, x - 1, x + 2]),
     correct: x,
     explanation: { text: `${y} − ${b} = ${a * x}, og ${a * x} : ${a} = ${x}.`, visual: null },
   });

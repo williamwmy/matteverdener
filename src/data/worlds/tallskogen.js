@@ -409,7 +409,9 @@ function regnestykkeVisual(start, steps) {
     running = op === '+' ? running + n : running - n;
     totals.push(running);
   }
-  return { type: 'sekvens', terms: totals.slice(0, -1), answer: totals[totals.length - 1], labels, reveal: true };
+  // Løpende sum kan være ikke-monoton (f.eks. − så +), så bruk steg-rekkefølge
+  // med lik avstand i stedet for verdiplassering.
+  return { type: 'sekvens', terms: totals.slice(0, -1), answer: totals[totals.length - 1], labels, reveal: true, ordered: true };
 }
 
 function threeTerms(cap) {

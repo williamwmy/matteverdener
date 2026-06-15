@@ -234,7 +234,7 @@ function QuestionVisual({ visual, size }) {
   }
   if (visual.type === 'sekvens') {
     return (
-      <SekvensDisplay terms={visual.terms} answer={visual.answer} labels={visual.labels} reveal={visual.reveal} />
+      <SekvensDisplay terms={visual.terms} answer={visual.answer} labels={visual.labels} reveal={visual.reveal} ordered={visual.ordered} />
     );
   }
   if (visual.type === 'telle') {

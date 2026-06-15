@@ -5,32 +5,50 @@ const HEIGHT = 124;
 const LINE_Y = 78;
 const MIN_GAP = 46; // minste avstand mellom to nabotall (px) for at piltekst får plass
 const MAX_WIDTH = 540;
+const ORDERED_GAP = 90; // fast avstand i steg-modus (god plass til 3-sifrede tall + piltekst)
 
 /**
- * Tallinje for tallmønstre/-følger: punktene plasseres etter VERDI (så voksende
- * sprang, som i kvadrattall 1, 4, 9 …, synes), med buede piler mellom dem som
- * viser hoppet (+3, +5 …). Den siste pila (mot «?») er bevisst uten tekst, så
- * barnet selv finner hoppet — med mindre `reveal` er satt (fasit ved feil svar).
+ * Tallinje for tallmønstre/-følger og løpende regnestykker.
+ *
+ * To plasseringsmodi:
+ * - VERDI (standard): punktene plasseres etter tallverdi, så voksende sprang
+ *   (kvadrattall 1, 4, 9 …) synes. Forutsetter en monoton følge.
+ * - STEG (`ordered`): punktene plasseres med lik avstand i regnerekkefølge,
+ *   venstre→høyre. Brukes for løpende summer som `104 − 73 + 115`, der følgen
+ *   ikke er monoton (104 → 31 → 146) og verdiplassering ville krysse buene og
+ *   stable etikettene oppå hverandre.
+ *
+ * Den siste pila (mot «?») er bevisst uten tekst, så barnet selv finner hoppet
+ * — med mindre `reveal` er satt (fasit ved feil svar).
  * @param {{
  *   terms: number[],
  *   answer: number,
  *   labels?: string[],
  *   reveal?: boolean,
+ *   ordered?: boolean,
  * }} props
  */
-export default function SekvensDisplay({ terms, answer, labels = [], reveal = false }) {
+export default function SekvensDisplay({ terms, answer, labels = [], reveal = false, ordered = false }) {
   const seq = [...terms, answer];
   const min = Math.min(...seq);
   const max = Math.max(...seq);
   const span = Math.max(1, max - min);
 
-  // Skaler så det minste hoppet får minst MIN_GAP px, men hold totalbredden i sjakk.
-  let minDiff = Infinity;
-  for (let i = 1; i < seq.length; i++) minDiff = Math.min(minDiff, Math.abs(seq[i] - seq[i - 1]));
-  if (!Number.isFinite(minDiff) || minDiff === 0) minDiff = 1;
-  const perUnit = Math.min(MIN_GAP / minDiff, MAX_WIDTH / span);
-  const width = PAD * 2 + span * perUnit;
-  const xFor = (v) => PAD + (v - min) * perUnit;
+  let xs;
+  let width;
+  if (ordered) {
+    width = PAD * 2 + (seq.length - 1) * ORDERED_GAP;
+    xs = seq.map((_, i) => PAD + i * ORDERED_GAP);
+  } else {
+    // Skaler så det minste hoppet får minst MIN_GAP px, men hold totalbredden i sjakk.
+    let minDiff = Infinity;
+    for (let i = 1; i < seq.length; i++) minDiff = Math.min(minDiff, Math.abs(seq[i] - seq[i - 1]));
+    if (!Number.isFinite(minDiff) || minDiff === 0) minDiff = 1;
+    const perUnit = Math.min(MIN_GAP / minDiff, MAX_WIDTH / span);
+    width = PAD * 2 + span * perUnit;
+    xs = seq.map((v) => PAD + (v - min) * perUnit);
+  }
+  const xFor = (i) => xs[i];
 
   return (
     <svg
@@ -47,8 +65,8 @@ export default function SekvensDisplay({ terms, answer, labels = [], reveal = fa
 
       {/* Piler mellom påfølgende ledd. */}
       {seq.slice(1).map((v, i) => {
-        const x1 = xFor(seq[i]);
-        const x2 = xFor(v);
+        const x1 = xFor(i);
+        const x2 = xFor(i + 1);
         const mid = (x1 + x2) / 2;
         const label = labels[i];
         return (
@@ -67,7 +85,7 @@ export default function SekvensDisplay({ terms, answer, labels = [], reveal = fa
       {/* Punkter med verdier; siste punkt er svaret («?» eller fasit). */}
       {seq.map((v, i) => {
         const isAnswer = i === seq.length - 1;
-        const x = xFor(v);
+        const x = xFor(i);
         return (
           <g key={`pt-${i}`}>
             <circle cx={x} cy={LINE_Y} r="4.5" className={s.dot} />
