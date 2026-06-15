@@ -31,6 +31,36 @@
   background: radial-gradient(circle at 50% 50%, #b07ef7 0%, #8f5fd6 75%, #7a4fc0 100%);
 }
 
+[data-floor='gulv-morktre'] {
+  background: repeating-linear-gradient(90deg, #5f4230 0 36px, #4d3526 36px 40px);
+}
+
+[data-floor='gulv-sjakk'] {
+  background: repeating-conic-gradient(#3a3340 0% 25%, #e8e4da 0% 50%) 0 0 / 72px 72px;
+}
+
+[data-floor='gulv-stein'] {
+  background-color: #868b96;
+  background-image: radial-gradient(circle at 25% 30%, #9aa0ac 17px, transparent 18px),
+    radial-gradient(circle at 72% 64%, #7b818c 15px, transparent 16px),
+    radial-gradient(circle at 50% 88%, #9aa0ac 13px, transparent 14px);
+  background-size: 92px 92px;
+}
+
+[data-floor='gulv-sand'] {
+  background-color: #e6d196;
+  background-image: radial-gradient(circle at 30% 40%, #f1e1ab 6px, transparent 7px),
+    radial-gradient(circle at 75% 72%, #d9c084 5px, transparent 6px),
+    radial-gradient(circle at 55% 18%, #f1e1ab 4px, transparent 5px);
+  background-size: 78px 78px;
+}
+
+[data-floor='gulv-marmor'] {
+  background-color: #e9e9f1;
+  background-image: linear-gradient(118deg, transparent 44%, #c8c8d6 46%, transparent 48%),
+    linear-gradient(56deg, transparent 60%, #d6d6e2 62%, transparent 64%);
+}
+
 /* ---- Vegger ---- */
 [data-wall] {
   background: #34324e;
@@ -80,4 +110,31 @@
 
 [data-window='vindu-solnedgang'] {
   background: linear-gradient(#2b2a6e 10%, #b45a8a 45%, #e0763e 70%, #f9c846 100%);
+}
+
+[data-window='vindu-regn'] {
+  background-color: #6b7a8a;
+  background-image: repeating-linear-gradient(74deg, rgba(255, 255, 255, 0.28) 0 1px, transparent 1px 9px),
+    linear-gradient(#7d8b9b, #5d6b7a);
+}
+
+[data-window='vindu-nordlys'] {
+  background-color: #0f1a3a;
+  background-image: radial-gradient(circle at 30% 30%, #f0ede8 1.4px, transparent 2.2px),
+    radial-gradient(circle at 70% 22%, #f0ede8 1.6px, transparent 2.4px),
+    linear-gradient(#0f1a3a 0%, #15406a 38%, #2fae7e 62%, #b07ef7 78%, #0f1a3a 100%);
+}
+
+[data-window='vindu-by'] {
+  background-image: linear-gradient(to top, #241f4a 0 34%, transparent 34%),
+    radial-gradient(circle at 78% 22%, #f0ede8 8px, transparent 9px),
+    linear-gradient(#1a1640, #322a63);
+}
+
+[data-window='vindu-hav'] {
+  background-color: #1f7aa6;
+  background-image: radial-gradient(circle at 30% 32%, rgba(255, 255, 255, 0.4) 4px, transparent 5px),
+    radial-gradient(circle at 66% 62%, rgba(255, 255, 255, 0.3) 6px, transparent 7px),
+    linear-gradient(#3aa6d6, #14628a);
+  background-size: 70px 70px, 95px 95px, 100% 100%;
 }

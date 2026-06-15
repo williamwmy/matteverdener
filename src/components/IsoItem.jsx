@@ -278,6 +278,106 @@ const SHAPES = {
       { cx: 0, cy: 0, cz: 52, w: 18, d: 14, h: 14, color: c },
     ];
   },
+  bookstack(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 44, d: 32, h: 9, color: c },
+      { cx: 3, cy: -1, cz: 9, w: 40, d: 30, h: 8, color: shade(c, 0.78) },
+      { cx: -3, cy: 2, cz: 17, w: 38, d: 28, h: 8, color: shade(c, 1.18) },
+      { cx: 2, cy: -2, cz: 25, w: 34, d: 26, h: 7, color: shade(c, 0.9) },
+    ];
+  },
+  vase(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 26, d: 26, h: 12, color: shade(c, 0.85) },
+      { cx: 0, cy: 0, cz: 12, w: 30, d: 30, h: 30, color: c },
+      { cx: 0, cy: 0, cz: 42, w: 20, d: 20, h: 8, color: shade(c, 0.9) },
+      { cx: -6, cy: 0, cz: 50, w: 5, d: 5, h: 16, color: '#4ecb71' },
+      { cx: 6, cy: 0, cz: 50, w: 5, d: 5, h: 12, color: '#4ecb71' },
+      { cx: -6, cy: 0, cz: 66, w: 11, d: 11, h: 9, color: '#f29bc6' },
+      { cx: 6, cy: 0, cz: 62, w: 10, d: 10, h: 9, color: '#f9c846' },
+      { cx: 0, cy: 0, cz: 58, w: 10, d: 10, h: 9, color: '#e05252' },
+    ];
+  },
+  chest(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 52, d: 34, h: 20, color: c },
+      { cx: 0, cy: 0, cz: 20, w: 52, d: 34, h: 10, color: shade(c, 1.12) },
+      { cx: 0, cy: 17, cz: 7, w: 12, d: 4, h: 10, color: '#f9c846' },
+    ];
+  },
+  // ---- Kjøkken ----
+  dishwasher(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 46, d: 42, h: 80, color: c },
+      { cx: 0, cy: 0, cz: 72, w: 46, d: 42, h: 8, color: shade(c, 0.8) },
+      { cx: 0, cy: 21, cz: 30, w: 26, d: 3, h: 28, color: '#9aa3b5' },
+      { cx: 0, cy: 22, cz: 50, w: 30, d: 3, h: 4, color: shade(c, 0.65) },
+    ];
+  },
+  island(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 100, d: 60, h: 40, color: c },
+      { cx: 0, cy: 0, cz: 40, w: 106, d: 66, h: 6, color: '#e8e4da' },
+      { cx: -26, cy: 30, cz: 30, w: 16, d: 3, h: 4, color: shade(c, 0.6) },
+      { cx: 26, cy: 30, cz: 30, w: 16, d: 3, h: 4, color: shade(c, 0.6) },
+    ];
+  },
+  pantry(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 50, d: 44, h: 130, color: c },
+      { cx: 0, cy: 0, cz: 64, w: 50, d: 44, h: 3, color: shade(c, 0.8) },
+      { cx: -8, cy: 22, cz: 84, w: 4, d: 4, h: 20, color: shade(c, 0.55) },
+      { cx: -8, cy: 22, cz: 40, w: 4, d: 4, h: 20, color: shade(c, 0.55) },
+    ];
+  },
+  microwave(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 46, d: 34, h: 26, color: c },
+      { cx: -6, cy: 17, cz: 4, w: 26, d: 3, h: 18, color: '#2a2940' },
+      { cx: 16, cy: 17, cz: 4, w: 10, d: 3, h: 18, color: shade(c, 0.8) },
+      { cx: 16, cy: 18, cz: 14, w: 5, d: 2, h: 5, color: '#7ed4f7' },
+    ];
+  },
+  // ---- Bad ----
+  mirror(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 40, d: 10, h: 96, color: c },
+      { cx: 0, cy: 5, cz: 6, w: 32, d: 3, h: 84, color: '#bfe3f0' },
+    ];
+  },
+  towelrack(c) {
+    return [
+      { cx: -18, cy: 0, cz: 0, w: 5, d: 5, h: 70, color: c },
+      { cx: 18, cy: 0, cz: 0, w: 5, d: 5, h: 70, color: c },
+      { cx: 0, cy: 0, cz: 64, w: 41, d: 5, h: 5, color: c },
+      { cx: 0, cy: 0, cz: 44, w: 36, d: 5, h: 5, color: shade(c, 0.85) },
+      { cx: -8, cy: 5, cz: 24, w: 24, d: 3, h: 36, color: '#7ed4f7' },
+    ];
+  },
+  shower(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 56, d: 56, h: 8, color: shade(c, 0.92) },
+      { cx: -26, cy: 0, cz: 8, w: 4, d: 56, h: 84, color: c },
+      { cx: 0, cy: -26, cz: 8, w: 56, d: 4, h: 84, color: c },
+      { cx: -22, cy: -22, cz: 8, w: 6, d: 6, h: 78, color: '#9aa3b5' },
+      { cx: -6, cy: -6, cz: 78, w: 14, d: 14, h: 5, color: '#cfd3db' },
+    ];
+  },
+  washingmachine(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 48, d: 46, h: 80, color: c },
+      { cx: 0, cy: 0, cz: 72, w: 48, d: 46, h: 8, color: shade(c, 0.82) },
+      { cx: 0, cy: 23, cz: 28, w: 28, d: 3, h: 28, color: '#3a3340' },
+      { cx: 0, cy: 24, cz: 34, w: 18, d: 2, h: 18, color: '#7ed4f7' },
+    ];
+  },
+  bathcabinet(c) {
+    return [
+      { cx: 0, cy: 0, cz: 0, w: 44, d: 24, h: 54, color: c },
+      { cx: 0, cy: 13, cz: 6, w: 36, d: 2, h: 42, color: '#bfe3f0' },
+      { cx: 15, cy: 14, cz: 26, w: 3, d: 2, h: 8, color: shade(c, 0.6) },
+    ];
+  },
 };
 
 function rotateBox(b, r) {

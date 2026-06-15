@@ -8,14 +8,21 @@ export const CATEGORIES = [
   { id: 'vegg', label: 'Vegger' },
   { id: 'vindu', label: 'Vindu' },
   { id: 'mobler', label: 'Møbler' },
+  { id: 'kjokken', label: 'Kjøkken' },
+  { id: 'bad', label: 'Bad' },
   { id: 'dekor', label: 'Dekor' },
 ];
 
 export const SHOP_ITEMS = [
   // Gulv
   { id: 'gulv-treplanker', category: 'gulv', name: 'Treplanker', price: 50 },
+  { id: 'gulv-morktre', category: 'gulv', name: 'Mørke planker', price: 70 },
   { id: 'gulv-gress', category: 'gulv', name: 'Gressgulv', price: 80 },
   { id: 'gulv-fliser', category: 'gulv', name: 'Rutete fliser', price: 100 },
+  { id: 'gulv-sjakk', category: 'gulv', name: 'Sjakkgulv', price: 110 },
+  { id: 'gulv-sand', category: 'gulv', name: 'Sandgulv', price: 90 },
+  { id: 'gulv-stein', category: 'gulv', name: 'Steingulv', price: 120 },
+  { id: 'gulv-marmor', category: 'gulv', name: 'Marmorgulv', price: 150 },
   { id: 'gulv-teppe', category: 'gulv', name: 'Mykt teppe', price: 120 },
 
   // Vegger
@@ -28,6 +35,10 @@ export const SHOP_ITEMS = [
   { id: 'vindu-dag', category: 'vindu', name: 'Solskinnsvindu', price: 150 },
   { id: 'vindu-natt', category: 'vindu', name: 'Nattevindu', price: 200 },
   { id: 'vindu-solnedgang', category: 'vindu', name: 'Solnedgang', price: 250 },
+  { id: 'vindu-regn', category: 'vindu', name: 'Regnværsvindu', price: 180 },
+  { id: 'vindu-nordlys', category: 'vindu', name: 'Nordlys', price: 280 },
+  { id: 'vindu-by', category: 'vindu', name: 'Byutsikt', price: 240 },
+  { id: 'vindu-hav', category: 'vindu', name: 'Havutsikt', price: 240 },
 
   // Møbler — faste slots på gulvet
   {
