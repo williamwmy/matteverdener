@@ -46,7 +46,8 @@ Hele MVP-en er på plass og fungerer:
 - **Easter eggs**: (1) Konami-koden (`↑↑↓↓←→←→ b a`, `useKonamiCode`) på
   verdenskartet åpner `CheatDialog` der man kan legge til diamanter, låse opp
   alle verdener (`unlockAllWorlds`) eller én og én (`unlockOneWorld`), og
-  se/justere det skjulte nivået per verden.
+  se/justere det skjulte nivået per verden. På berøringsskjerm tastes samme kode
+  inn med sveip `↑↑↓↓←→←→` + to trykk (samme hook lytter på både tast og touch).
   (2) Svarer barnet riktig og fasiten er nettopp **67**, spretter en
   animert «six seven»-meme opp (`SixSevenMeme` i `Celebrations.jsx`); trigges i
   `GameSession.handleAnswer` på `Number(question.correct) === 67`.
@@ -170,10 +171,16 @@ tegnes flatt (`IsoRug`) i samme lag, men *under* de stående møblene. Møbler,
 dekor og tepper kan **dras** (flyttes) og **snurres** (trykk uten å dra → 90°);
 tilstanden lagres direkte på instansen i `placed[]`.
 
-**Gotcha i `IsoItem`**: ved rotasjon sorteres klossene på dybde (`cx+cy+cz`).
-Stablede deler som skal kunne skjules av hverandre (f.eks. TV-skjermen vs. den
-mørke baksiden) må ha **samme `cz`**, ellers tegnes den høyeste alltid øverst —
-da «lyser» skjermen gjennom baksiden uansett rotasjon.
+**Dybdesortering i `IsoItem`**: ved rotasjon sorteres klossene med en ekte
+maler-algoritme (`sortByDepth`) — en topologisk sortering der `drawnBefore`
+avgjør rekkefølgen parvis via separasjonsakse (kamera står på +x,+y,+z), og det
+lages bare en kant mellom klosser som faktisk overlapper på skjermen
+(`screenOverlap`), så fulle hyller/lister ikke lager falske sykler. Klosser som
+overlapper på alle tre akser (en detalj som håndtak/luke/knott felt inn i en
+flate) ordnes på horisontal dybde (`cx+cy`) i stedet for senterdybden
+`cx+cy+cz` — ellers løfter en høyt plassert detalj seg foran kroppen og «lyser
+gjennom» når møbelet snus bort. (Ved rotasjon 0 beholdes den håndskrevne
+rekkefølgen i hver `SHAPES`-form.)
 
 ## Kjente forenklinger / mulige neste steg
 

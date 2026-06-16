@@ -173,10 +173,9 @@ const SHAPES = {
     ];
   },
   tv(c) {
-    // Ramme og skjerm har SAMME cz, så dybdesorteringen (cx+cy+cz) styres av
-    // dybden (cy): skjermen tegnes over rammen når TV-en vender mot oss, og
-    // rammen (baksiden) tegnes over skjermen når den er snudd bort. Ulik cz her
-    // ville alltid tegnet skjermen øverst → «TV-en vises bak frem».
+    // Skjermen (lys) ligger foran den mørke baksiden: dybdesorteringen tegner
+    // skjermen over baksiden når TV-en vender mot oss, og skjuler den bak
+    // baksiden når den er snudd bort.
     return [
       { cx: 0, cy: 0, cz: 0, w: 90, d: 40, h: 24, color: c },
       { cx: 0, cy: -6, cz: 24, w: 66, d: 8, h: 42, color: '#1c2030' },
@@ -393,7 +392,98 @@ function rotateBox(b, r) {
   return { ...b, cx, cy, w, d };
 }
 
-const depthKey = (b) => (b.cx ?? 0) + (b.cy ?? 0) + (b.cz ?? 0);
+// Akse-utstrekning + skjerm-boks for én kloss (etter rotasjon). `sx/sy` er den
+// projiserte 2D-omsluttende boksen, brukt til å avgjøre om to klosser i det hele
+// tatt overlapper på skjermen.
+function extents(b) {
+  const cx = b.cx ?? 0;
+  const cy = b.cy ?? 0;
+  const cz = b.cz ?? 0;
+  const x0 = cx - b.w / 2, x1 = cx + b.w / 2;
+  const y0 = cy - b.d / 2, y1 = cy + b.d / 2;
+  const z0 = cz, z1 = cz + b.h;
+  let sx0 = Infinity, sx1 = -Infinity, sy0 = Infinity, sy1 = -Infinity;
+  for (const ox of [x0, x1])
+    for (const oy of [y0, y1]) {
+      const sx = ox * UX[0] + oy * UY[0];
+      if (sx < sx0) sx0 = sx;
+      if (sx > sx1) sx1 = sx;
+      for (const oz of [z0, z1]) {
+        const sy = ox * UX[1] + oy * UY[1] + oz * UZ_Y;
+        if (sy < sy0) sy0 = sy;
+        if (sy > sy1) sy1 = sy;
+      }
+    }
+  return { x0, x1, y0, y1, z0, z1, cx, cy, cz, sx0, sx1, sy0, sy1 };
+}
+
+// Overlapper to klosser i det hele tatt på skjermen? Hvis ikke, spiller
+// tegnerekkefølgen deres ingen rolle (og vi unngår falske avhengigheter som
+// ellers kan lage sykler i sorteringen).
+function screenOverlap(a, b) {
+  return a.sx0 < b.sx1 && b.sx0 < a.sx1 && a.sy0 < b.sy1 && b.sy0 < a.sy1;
+}
+
+// Skal kloss A tegnes FØR B? Kameraet ser fra +x,+y,+z, så høyere koordinat er
+// nærmere oss. Er klossene adskilt på en akse, bestemmer den rekkefølgen
+// (maler-algoritmen: tegn det bakerste først). Overlapper de på alle tre akser
+// — typisk en liten detalj (håndtak/luke/knott) som står i en stor flate — kan
+// ikke senter-dybden (cx+cy+cz) brukes, for da løfter en høyt plassert detalj
+// (stor cz) seg foran kroppen og «lyser gjennom» når møbelet snus bort. Da
+// ordner vi i stedet etter horisontal dybde (cx+cy) slik at frontdetaljer
+// havner foran og bakdetaljer skjules bak kroppen.
+function drawnBefore(a, b) {
+  if (a.x1 <= b.x0) return true;
+  if (b.x1 <= a.x0) return false;
+  if (a.y1 <= b.y0) return true;
+  if (b.y1 <= a.y0) return false;
+  if (a.z1 <= b.z0) return true;
+  if (b.z1 <= a.z0) return false;
+  const ha = a.cx + a.cy;
+  const hb = b.cx + b.cy;
+  if (ha !== hb) return ha < hb;
+  return a.cz < b.cz;
+}
+
+// Topologisk sortering (Kahn) av klossene fra bakerst til forrest. Ved en
+// eventuell syklus (skal ikke skje for ikke-gjennomtrengende klosser) beholdes
+// opprinnelig rekkefølge.
+function sortByDepth(boxes) {
+  const ext = boxes.map(extents);
+  const n = boxes.length;
+  const after = Array.from({ length: n }, () => []);
+  const indeg = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      if (!screenOverlap(ext[i], ext[j])) continue; // overlapper ikke → ingen kant
+      const [first, second] = drawnBefore(ext[i], ext[j]) ? [i, j] : [j, i];
+      after[first].push(second);
+      indeg[second]++;
+    }
+  }
+  const ready = [];
+  for (let i = 0; i < n; i++) if (indeg[i] === 0) ready.push(i);
+  const order = [];
+  while (ready.length) {
+    ready.sort((p, q) => p - q); // stabil tie-break på opprinnelig indeks
+    const k = ready.shift();
+    order.push(k);
+    for (const m of after[k]) if (--indeg[m] === 0) ready.push(m);
+  }
+  if (order.length !== n) {
+    // Syklus (sjelden — f.eks. en detalj klemt mellom kropp og en hylle/list):
+    // fall tilbake på horisontal dybde (cx+cy), så høyde (cz). Det skjuler
+    // bakdetaljer riktig; rene vertikale stabler havner aldri her (de er alltid
+    // syklusfrie og sorteres topologisk over).
+    return boxes
+      .map((b, i) => ({ b, i }))
+      .sort((p, q) =>
+        (p.b.cx + p.b.cy) - (q.b.cx + q.b.cy) || (p.b.cz ?? 0) - (q.b.cz ?? 0) || p.i - q.i
+      )
+      .map((o) => o.b);
+  }
+  return order.map((i) => boxes[i]);
+}
 
 /**
  * Tegner en gjenstand isometrisk. Bruk `ISO` for plassering/anker.
@@ -403,9 +493,7 @@ export default function IsoItem({ shape, color, rotation = 0 }) {
   const build = SHAPES[shape] ?? SHAPES.chair;
   let boxes = build(color || '#a06b49');
   if (rotation % 4 !== 0) {
-    boxes = boxes
-      .map((b) => rotateBox(b, rotation))
-      .sort((a, b2) => depthKey(a) - depthKey(b2) || (a.cz ?? 0) - (b2.cz ?? 0));
+    boxes = sortByDepth(boxes.map((b) => rotateBox(b, rotation)));
   }
   return (
     <svg
