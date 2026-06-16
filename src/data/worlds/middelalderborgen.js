@@ -58,6 +58,24 @@ function equationTwoStep() {
   });
 }
 
+// Likning med x på begge sider: ax + b = cx + d. a − c ≥ 2 sikrer et reelt
+// delesteg (og at trap-distraktøren d − b ikke blir lik svaret).
+function equationBothSides() {
+  const a = randInt(3, 6);
+  const c = randInt(1, a - 2);
+  const x = randInt(2, 9);
+  const b = randInt(1, 8);
+  const d = b + (a - c) * x; // heltallsløsning og positive ledd
+  // Trap: d − b = (a − c)·x er svaret hvis man glemmer å dele på (a − c).
+  return question({
+    prompt: 'Hva er x?',
+    expression: `${a}x + ${b} = ${c}x + ${d}`,
+    choices: choicesFrom(x, [d - b, x + 1, x - 1, x + 2]),
+    correct: x,
+    explanation: { text: `${a}x − ${c}x = ${d} − ${b} → ${a - c}x = ${d - b}, så x = ${x}.`, visual: null },
+  });
+}
+
 // ---- Uttrykk ----
 
 function evaluateExpression() {
@@ -285,14 +303,14 @@ function skala() {
 }
 
 export const pools = {
-  1: [() => equationAddSub(), () => equationAddSub(), () => evaluateExpression(), () => simplifyTerms(), () => likningMinusX()],
+  1: [() => equationAddSub(), () => equationAddSub(), () => evaluateExpression(), () => simplifyTerms(), () => rectanglePerimeter()],
   2: [() => equationAddSub(), () => equationMultiply(), () => evaluateExpression(), () => rectanglePerimeter(), () => likningMinusX(), () => potens()],
-  3: [() => equationMultiply(), () => simplifyTerms(), () => rectanglePerimeter(), () => rectangleArea(), () => trekantOmkrets(), () => potens()],
+  3: [() => equationMultiply(), () => simplifyTerms(), () => likningMinusX(), () => rectangleArea(), () => trekantOmkrets(), () => potens()],
   4: [() => equationMultiply(), () => evaluateExpression(), () => rectangleArea(), () => squareAreaPerimeter(), () => trekantOmkrets(), () => settInnFormel()],
-  5: [() => equationTwoStep(), () => simplifyTerms(), () => squareAreaPerimeter(), () => triangleArea(), () => settInnFormel(), () => firkantVinkel()],
-  6: [() => equationTwoStep(), () => evaluateExpression(), () => triangleArea(), () => straightAngle(), () => firkantVinkel(), () => volumBoks()],
-  7: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => straightAngle(), () => skala(), () => volumBoks()],
-  8: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => triangleArea(), () => firkantVinkel(), () => skala()],
-  9: [() => equationTwoStep(), () => simplifyTerms(), () => triangleAngle(), () => rectangleArea(), () => potens(), () => settInnFormel()],
-  10: [() => equationTwoStep(), () => evaluateExpression(), () => triangleAngle(), () => straightAngle(), () => skala(), () => volumBoks()],
+  5: [() => equationTwoStep(), () => simplifyTerms(), () => squareAreaPerimeter(), () => triangleArea(), () => settInnFormel(), () => straightAngle()],
+  6: [() => equationTwoStep(), () => evaluateExpression(), () => triangleArea(), () => straightAngle(), () => triangleAngle(), () => volumBoks()],
+  7: [() => equationTwoStep(), () => triangleAngle(), () => firkantVinkel(), () => straightAngle(), () => skala(), () => volumBoks()],
+  8: [() => equationTwoStep(), () => equationBothSides(), () => triangleAngle(), () => triangleArea(), () => firkantVinkel(), () => skala()],
+  9: [() => equationTwoStep(), () => equationBothSides(), () => triangleAngle(), () => firkantVinkel(), () => skala(), () => volumBoks()],
+  10: [() => equationBothSides(), () => equationTwoStep(), () => triangleAngle(), () => firkantVinkel(), () => skala(), () => volumBoks()],
 };

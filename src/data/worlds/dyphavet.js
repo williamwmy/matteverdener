@@ -67,6 +67,20 @@ function percentPart() {
     explanation: { text: `${part} av 100 er ${part} %.`, visual: null },
   });
 }
+// Hvor mange prosent er A av B, der B ≠ 100. Kombinasjonene er valgt så A blir
+// et heltall og svaret en pen prosent (regnes ut via felles brøk A/B).
+function percentAofB() {
+  const p = pick([10, 20, 25, 50, 75]);
+  const b = pick([20, 40, 60, 80, 200]);
+  const a = (b * p) / 100; // alltid heltall for disse kombinasjonene
+  return question({
+    prompt: `I en stim på ${b} fisk 🐟 er ${a} gule. Hvor mange prosent er gule?`,
+    choiceType: 'text',
+    choices: choicesFrom(`${p} %`, [`${a} %`, `${100 - p} %`, `${p + 10} %`, `${p - 10} %`, `${p + 20} %`]),
+    correct: `${p} %`,
+    explanation: { text: `${a} av ${b} = ${a}/${b} = ${p} %.`, visual: null },
+  });
+}
 
 // ---- Statistikk ----
 
@@ -296,12 +310,12 @@ function kombinasjoner() {
 export const pools = {
   1: [() => chartMost(), () => chartTotal(), () => percentOfQuantity(), () => probabilityCount(), () => chartLeast(), () => kombinasjoner()],
   2: [() => chartMost(), () => chartDiff(), () => percentOfQuantity(), () => probabilityCount(), () => chartLeast(), () => kombinasjoner()],
-  3: [() => chartDiff(), () => chartTotal(), () => percentConvert(), () => probabilityCount(), () => variasjonsbredde(), () => desimalProsent()],
+  3: [() => chartDiff(), () => chartTotal(), () => percentConvert(), () => probabilityCount(), () => percentOfQuantity(), () => desimalProsent()],
   4: [() => percentOfQuantity(), () => percentConvert(), () => meanDepth(), () => probabilityFraction(), () => desimalProsent(), () => variasjonsbredde()],
-  5: [() => percentOfQuantity(), () => percentPart(), () => meanDepth(), () => mode(), () => prosentOkning(), () => kombinasjoner()],
+  5: [() => percentOfQuantity(), () => percentPart(), () => meanDepth(), () => mode(), () => prosentOkning(), () => variasjonsbredde()],
   6: [() => percentPart(), () => percentConvert(), () => median(), () => mode(), () => prosentRabatt(), () => variasjonsbredde()],
-  7: [() => percentOfQuantity(), () => median(), () => probabilityFraction(), () => meanDepth(), () => prosentOkning(), () => sannsynlighetProsent()],
-  8: [() => percentPart(), () => median(), () => probabilityFraction(), () => chartDiff(), () => prosentRabatt(), () => sannsynlighetProsent()],
-  9: [() => percentOfQuantity(), () => percentPart(), () => median(), () => probabilityFraction(), () => prosentOkning(), () => sannsynlighetProsent()],
-  10: [() => percentPart(), () => median(), () => mode(), () => probabilityFraction(), () => prosentRabatt(), () => sannsynlighetProsent()],
+  7: [() => percentPart(), () => median(), () => probabilityFraction(), () => meanDepth(), () => prosentOkning(), () => sannsynlighetProsent()],
+  8: [() => percentAofB(), () => median(), () => probabilityFraction(), () => prosentOkning(), () => prosentRabatt(), () => sannsynlighetProsent()],
+  9: [() => prosentRabatt(), () => percentAofB(), () => median(), () => probabilityFraction(), () => prosentOkning(), () => sannsynlighetProsent()],
+  10: [() => percentAofB(), () => median(), () => prosentOkning(), () => probabilityFraction(), () => prosentRabatt(), () => sannsynlighetProsent()],
 };

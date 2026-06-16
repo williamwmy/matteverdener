@@ -233,11 +233,16 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
-.choice:hover:enabled {
-  border-color: var(--color-accent);
-  background: linear-gradient(160deg, #34324e, var(--color-surface-alt));
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35), 0 0 18px rgba(249, 200, 70, 0.25);
+/* Kun på enheter med en ekte peker (mus). På touch «henger» :hover igjen etter
+   et trykk og følger med til neste spørsmål (samme DOM-node gjenbrukes via
+   key={choice}) — det ser ut som en fokusring som blir hengende. */
+@media (hover: hover) {
+  .choice:hover:enabled {
+    border-color: var(--color-accent);
+    background: linear-gradient(160deg, #34324e, var(--color-surface-alt));
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35), 0 0 18px rgba(249, 200, 70, 0.25);
+  }
 }
 
 .choiceCorrect {

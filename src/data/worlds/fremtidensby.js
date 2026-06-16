@@ -278,8 +278,8 @@ export const pools = {
   4: [() => functionRule(), () => proportion(), () => rate(), () => coordPlot(), () => kvadrant(), () => finnXavY()],
   5: [() => rate(), () => functionValue(), () => coordPlot(), () => percentChange(), () => finnXavY(), () => punktPaaLinje()],
   6: [() => equationBothSides(), () => functionRule(), () => rate(), () => percentChange(), () => likningParentes(), () => punktPaaLinje()],
-  7: [() => equationBothSides(), () => functionValue(), () => coordPlot(), () => percentChange(), () => forholdDeling(), () => kvadrant()],
-  8: [() => equationBothSides(), () => functionRule(), () => rate(), () => proportion(), () => likningParentes(), () => omvendtProp()],
-  9: [() => equationBothSides(), () => percentChange(), () => coordPlot(), () => functionValue(), () => forholdDeling(), () => finnXavY()],
+  7: [() => equationBothSides(), () => likningParentes(), () => punktPaaLinje(), () => percentChange(), () => forholdDeling(), () => rate()],
+  8: [() => equationBothSides(), () => functionRule(), () => rate(), () => percentChange(), () => likningParentes(), () => omvendtProp()],
+  9: [() => equationBothSides(), () => percentChange(), () => omvendtProp(), () => likningParentes(), () => forholdDeling(), () => punktPaaLinje()],
   10: [() => equationBothSides(), () => functionRule(), () => percentChange(), () => rate(), () => omvendtProp(), () => likningParentes()],
 };

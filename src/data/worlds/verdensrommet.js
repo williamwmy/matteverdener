@@ -300,14 +300,14 @@ function primtall() {
 }
 
 export const pools = {
-  1: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 5 }), () => negLine(), () => tallsprang()],
+  1: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 5 }), () => utvidetForm(), () => tallsprang()],
   2: [() => placeValue(), () => compareLarge(), () => coordIdentify({ min: 0, max: 6 }), () => rounding(), () => tallsprang(), () => utvidetForm()],
-  3: [() => rounding(), () => negLine(), () => coordIdentify({ min: 0, max: 6 }), () => largeAddSub(), () => utvidetForm(), () => tallsprang()],
-  4: [() => negTemperature(), () => negOrder(), () => rounding(), () => placeValue(), () => negAvstand(), () => delTier()],
-  5: [() => negTemperature(), () => negOrder(), () => largeAddSub(), () => multiplyPower(), () => negAddSub(), () => tosifretGanger()],
+  3: [() => rounding(), () => negLine(), () => coordIdentify({ min: 0, max: 6 }), () => delTier(), () => utvidetForm(), () => tallsprang()],
+  4: [() => negTemperature(), () => negOrder(), () => rounding(), () => coordIdentify({ min: -3, max: 3 }), () => negAvstand(), () => delTier()],
+  5: [() => negTemperature(), () => negOrder(), () => largeAddSub(), () => multiplyPower(), () => negAvstand(), () => tosifretGanger()],
   6: [() => multiplyPower(), () => largeAddSub(), () => negTemperature(), () => coordIdentify({ min: -4, max: 4 }), () => negAddSub(), () => delTier()],
   7: [() => largeAddSub(), () => multiplyPower(), () => coordIdentify({ min: -5, max: 5 }), () => negOrder(), () => negAvstand(), () => primtall()],
-  8: [() => largeAddSub(), () => rounding(), () => negTemperature(), () => multiplyPower(), () => temperaturStig(), () => tosifretGanger()],
+  8: [() => largeAddSub(), () => negAvstand(), () => negTemperature(), () => multiplyPower(), () => temperaturStig(), () => tosifretGanger()],
   9: [() => multiplyPower(), () => largeAddSub(), () => coordIdentify({ min: -5, max: 5 }), () => negTemperature(), () => negAddSub(), () => primtall()],
   10: [() => largeAddSub(), () => multiplyPower(), () => negOrder(), () => coordIdentify({ min: -5, max: 5 }), () => temperaturStig(), () => tosifretGanger()],
 };

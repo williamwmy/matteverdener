@@ -376,12 +376,12 @@ function rundeDesimal() {
 export const pools = {
   1: [() => fractionShaded(), () => fractionShaded(), () => sequenceRule(), () => fractionOfQuantity(), () => brokResten()],
   2: [() => fractionShaded(), () => fractionOfQuantity(), () => sequenceRule(), () => compareFractions(), () => brokResten()],
-  3: [() => fractionOfQuantity(), () => compareFractions(), () => findRule(), () => figurtall(), () => heleIBrok()],
-  4: [() => compareFractions(), () => equivalentFraction(), () => figurtall(), () => fractionOfQuantity(), () => heleIBrok(), () => forenkleBrok()],
+  3: [() => fractionOfQuantity(), () => compareFractions(), () => findRule(), () => brokResten(), () => heleIBrok()],
+  4: [() => compareFractions(), () => equivalentFraction(), () => decimalFraction(), () => fractionOfQuantity(), () => heleIBrok(), () => forenkleBrok()],
   5: [() => equivalentFraction(), () => decimalFraction(), () => tenths(), () => findRule(), () => forenkleBrok(), () => rundeDesimal()],
-  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions(), () => compareUlikeBrok(), () => desimalGanger()],
-  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => equivalentFraction(), () => compareUlikeBrok(), () => desimalGanger()],
+  6: [() => decimalFraction(), () => tenths(), () => orderDecimals(), () => addFractions(), () => equivalentFraction(), () => rundeDesimal()],
+  7: [() => addFractions(), () => orderDecimals(), () => addDecimals(), () => figurtall(), () => compareUlikeBrok(), () => desimalGanger()],
   8: [() => addDecimals(), () => decimalFraction(), () => figurtall(), () => addFractions(), () => compareUlikeBrok(), () => forenkleBrok()],
-  9: [() => addFractions(), () => addDecimals(), () => sequenceRule(), () => compareUlikeBrok(), () => desimalGanger(), () => heleIBrok()],
+  9: [() => addFractions(), () => addDecimals(), () => figurtall(), () => compareUlikeBrok(), () => desimalGanger(), () => heleIBrok()],
   10: [() => addDecimals(), () => addFractions(), () => figurtall(), () => orderDecimals(), () => compareUlikeBrok(), () => subDecimals()],
 };
