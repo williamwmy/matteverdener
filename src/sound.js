@@ -6,6 +6,8 @@
 let ctx = null;
 let enabled = true;
 
+let unlocked = false;
+
 function audioCtx() {
   if (typeof window === 'undefined') return null;
   const Ctor = window.AudioContext || window.webkitAudioContext;
@@ -13,6 +15,35 @@ function audioCtx() {
   if (!ctx) ctx = new Ctor();
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
   return ctx;
+}
+
+// iOS/Safari (og strenge mobilnettlesere) starter AudioContext-en «suspended»
+// og spiller ingen lyd før den er låst opp INNE i en ekte brukerhandling — og
+// da må det faktisk startes en lydkilde, ikke bare kalles resume(). Vi gjør det
+// én gang på første trykk/tast: resume + en stille 1-sample-buffer. Etterpå
+// virker alle senere lyder (også de som ikke kommer rett fra et trykk).
+function unlock() {
+  if (unlocked) return;
+  const c = audioCtx();
+  if (!c) return;
+  try {
+    const src = c.createBufferSource();
+    src.buffer = c.createBuffer(1, 1, 22050);
+    src.connect(c.destination);
+    src.start(0);
+  } catch {
+    /* ignorer */
+  }
+  if (c.state === 'running') unlocked = true;
+}
+
+if (typeof window !== 'undefined') {
+  const events = ['pointerdown', 'touchend', 'keydown'];
+  const onFirstGesture = () => {
+    unlock();
+    if (unlocked) events.forEach((e) => window.removeEventListener(e, onFirstGesture));
+  };
+  events.forEach((e) => window.addEventListener(e, onFirstGesture, { passive: true }));
 }
 
 /** Slår lyd av/på. Når av, lages ingen lyd og ingen AudioContext. */

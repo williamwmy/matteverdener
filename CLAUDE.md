@@ -74,6 +74,18 @@ npm run build     # produksjonsbygg (dist/) med service worker
 npm run preview   # forhåndsvis produksjonsbygget (test PWA/offline)
 ```
 
+## Versjonering (`package.json` → vises som `v…` på startskjermen)
+
+Bump `version` i `package.json` etter dette mønsteret — ALLTID i samme commit:
+
+- **patch** (siste tall, `x.y.Z`): øk med 1 ved **hver commit**.
+- **minor** (`x.Y.z`): øk med 1 ved **hver push**, og nullstill patch til 0.
+- **major** (`X.y.z`): økes **kun når brukeren ber om det**.
+
+Eksempel: står den på `0.2.0` og jeg gjør «commit og push», blir det
+`0.2.1` i commiten og `0.3.0` ved pushen (patch nullstilt). Flere commits før en
+push: `0.2.1`, `0.2.2`, … så `0.3.0` på pushen.
+
 ## Arkitektur
 
 ```
