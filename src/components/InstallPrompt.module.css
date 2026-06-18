@@ -1,0 +1,82 @@
+.banner {
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 50;
+  width: min(440px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-alt);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  animation: slideUp 0.32s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    animation: none;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.text {
+  flex: 1;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.3;
+  color: var(--color-text);
+}
+
+.share {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.2em;
+  margin: 0 0.1em;
+  color: var(--color-accent);
+}
+
+.installBtn {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-weight: 800;
+  color: #07300f;
+  background: var(--color-accent-green);
+  border-radius: var(--radius);
+}
+
+.close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-radius: 50%;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}

@@ -1,4 +1,5 @@
 import SoundToggle from './SoundToggle.jsx';
+import InstallPrompt from './InstallPrompt.jsx';
 import { sfx } from '../sound.js';
 import s from './StartScreen.module.css';
 
@@ -51,6 +52,7 @@ export default function StartScreen({ version, onStart }) {
         Velg spiller
       </button>
       <p className={s.version}>v{version}</p>
+      <InstallPrompt />
     </main>
   );
 }
